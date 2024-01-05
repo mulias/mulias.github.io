@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{{ get_url(path="index.css") | safe }}">
+{% endblock styles %}
+
+{% block posthead %}
+  <link rel="prefetch" href="{{ config.extra.profile_large }}">
+{% endblock posthead %}
+
+{% block content %}
+  <h1 class="home-title">{{ config.extra.home_title }}</h1>
+  <div class="home-cols">
+    <div class="profile">
+      <img src="{{ config.extra.profile_large }}" alt="profile picture">
+      <div class="nav-wrapper">
+        <nav>
+          {% for link in config.extra.nav %}
+            <a href="{{ link.path }}">{{ link.name }}</a>
+          {% endfor %}
+          {% for link in config.extra.socials %}
+            <a href="{{ link.path }}">{{ link.name }}</a>
+          {% endfor %}
+        </nav>
+      </div>
+    </div>
+    <div class="content">
+      {{ section.content | safe }}
+    </div>
+  </div>
+{% endblock content %}

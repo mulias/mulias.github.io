@@ -1,0 +1,53 @@
+base_url = "https://mulias.github.io/"
+
+title = "Elias Mulhall"
+
+# description = ""
+
+compile_sass = true
+
+build_search_index = false
+
+taxonomies = [ { name = "tags" } ]
+
+generate_feed = true
+
+[markdown]
+highlight_code = true
+highlight_theme = "demain"
+
+[extra]
+
+dark_mode = false
+
+nav = [
+  { name = "Home", path = "/" },
+  { name = "Blog", path = "/blog/" }
+]
+
+socials = [
+  { name = "Github", path = "https://github.com/mulias" },
+  { name = "eli.mulhall@gmail.com", path = "mailto:eli.mulhall@gmail.com" }
+]
+
+icon = "icon.png"
+profile_small = "icon.png"
+profile_large = "its_me.jpg"
+
+accent = "#05a081"
+accent_light = "#82d0c0"
+
+author = "Elias"
+
+home_title = "Elias Mulhall"
+
+footer_about = """
+Subscribe vis [RSS](/atom.xml)
+"""
+
+footer_page = ""
+
+not_found_message = """
+Looks like you took a wrong turn. You can hang out here as long as you'd like,
+but you'll probably want to retrace your steps and [try again](/).
+"""
