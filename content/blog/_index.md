@@ -6,5 +6,3 @@ sort_by = "date"
 +++
 
 ## Blog
-
-It's a little empty around here, but we'll get that sorted soon!

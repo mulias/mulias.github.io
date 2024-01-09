@@ -2,7 +2,7 @@
 
 {% import "post-preview.html" as post_macros %}
 
-{% block posthead %} 
+{% block posthead %}
   {% for post in section.pages %}
     <link rel="prerender" href="{{ post.permalink }}" />
   {% endfor %}
@@ -11,7 +11,9 @@
 {% block content %}
   {{ section.content | safe }}
 
-  {% for post in section.pages %}
-    {{ post_macros::post_preview(post=post) }}
-  {% endfor %}
+  <ul class="posts">
+    {% for post in section.pages %}
+      {{ post_macros::post_preview(post=post) }}
+    {% endfor %}
+  </ul>
 {% endblock content %}

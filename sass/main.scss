@@ -5,16 +5,23 @@ body {
   color: var(--body-color);
 }
 
+ul.posts {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .post-preview {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+
   h3.post-title {
-    margin-bottom: 0;
+    margin: 0;
   }
-
-  .summary {
-    margin-top: 0.8rem;
-  }
-
-  margin-bottom: 2rem;
 }
 
 .post-title {
