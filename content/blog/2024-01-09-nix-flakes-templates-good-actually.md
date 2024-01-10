@@ -4,7 +4,7 @@ title = "Nix flakes have built in templates and they're good actually"
 tags = [ "nix", "nix flake templates", "tooling", "today i learned" ]
 +++
 
-Nix [flakes](https://nixos.wiki/wiki/Flakes) come with a templating system to quickly initialize a project with a dev environment that's specialized to a specific language or framework. I've been using Nix for years and had no idea this was a feature!
+Nix [flakes](https://nixos.wiki/wiki/Flakes) come with a templating system to quickly initialize dev environments for specific languages or frameworks. I've been using Nix for years and had no idea this was a feature!
 
 Shout out to [Thomas Kelly](https://github.com/thomassdk) for walking me through this little exercise and probably saving me hours of configuration time on future projects. Thanks Thomas!
 
@@ -44,7 +44,7 @@ github:NixOS/templates/98bc26d94008617aac7cd0244fb09ff04d6c8cf6
 ```
 I'm told these are not necessarily the best templates to use, since they have pretty limited scope and tend to be out of date.
 
-List community maintained templates from a github repo:
+List community maintained templates from a Github repo:
 ```
 $ nix flake show github:the-nix-way/dev-templates
 github:the-nix-way/dev-templates/0ea67a261e12a8d02d773cdc588baccf8397cc25
