@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>Elias Mulhall</title>
+    <link rel="self" type="application/atom+xml" href="https://mulias.github.io/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://mulias.github.io/"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-01-09T00:00:00+00:00</updated>
+    <id>https://mulias.github.io/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Nix flakes have built in templates and they&#x27;re good actually</title>
+        <published>2024-01-09T00:00:00+00:00</published>
+        <updated>2024-01-09T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://mulias.github.io/blog/nix-flakes-templates-good-actually/"/>
+        <id>https://mulias.github.io/blog/nix-flakes-templates-good-actually/</id>
+        
+        <content type="html" xml:base="https://mulias.github.io/blog/nix-flakes-templates-good-actually/">&lt;p&gt;Nix &lt;a href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Flakes&quot;&gt;flakes&lt;&#x2F;a&gt; come with a templating system to quickly initialize dev environments for specific languages or frameworks. I&#x27;ve been using Nix for years and had no idea this was a feature!&lt;&#x2F;p&gt;
+&lt;p&gt;Shout out to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;thomassdk&quot;&gt;Thomas Kelly&lt;&#x2F;a&gt; for walking me through this little exercise and probably saving me hours of configuration time on future projects. Thanks Thomas!&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;setup&quot;&gt;Setup&lt;&#x2F;h2&gt;
+&lt;p&gt;Nix flakes are &amp;quot;experimental&amp;quot; even though they&#x27;ve been around for years and seem pretty popular. You might have to do a little extra config work to get the feature enabled.&lt;&#x2F;p&gt;
+&lt;p&gt;For &lt;code&gt;NixOS&lt;&#x2F;code&gt; this means updating &lt;code&gt;&#x2F;etc&#x2F;nixos&#x2F;configuration.nix&lt;&#x2F;code&gt; to add this line:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;nix&quot; style=&quot;background-color:#f9f9f9;color:#111111;&quot; class=&quot;language-nix &quot;&gt;&lt;code class=&quot;language-nix&quot; data-lang=&quot;nix&quot;&gt;&lt;span style=&quot;color:#f07219;&quot;&gt;nix&lt;&#x2F;span&gt;&lt;span style=&quot;color:#3e999f;&quot;&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07219;&quot;&gt;settings&lt;&#x2F;span&gt;&lt;span style=&quot;color:#3e999f;&quot;&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07219;&quot;&gt;experimental-features &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c82829;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#839c00;&quot;&gt;&amp;quot;nix-command&amp;quot; &amp;quot;flakes&amp;quot; &lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c82829;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;For &lt;code&gt;Nix&lt;&#x2F;code&gt; without the &lt;code&gt;OS&lt;&#x2F;code&gt; part see &lt;a href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Flakes#Enable_flakes_permanently_in_NixOS&quot;&gt;config instructions in the docs&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;finding-templates&quot;&gt;Finding templates&lt;&#x2F;h2&gt;
+&lt;p&gt;List the official templates:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix flake show templates
+&lt;&#x2F;span&gt;&lt;span&gt;github:NixOS&#x2F;templates&#x2F;98bc26d94008617aac7cd0244fb09ff04d6c8cf6
+&lt;&#x2F;span&gt;&lt;span&gt;├───defaultTemplate: template: A very basic flake
+&lt;&#x2F;span&gt;&lt;span&gt;└───templates
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───bash-hello: template: An over-engineered Hello World in bash
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───c-hello: template: An over-engineered Hello World in C
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───compat: template: A default.nix and shell.nix for backward compatibility with Nix installations that don&amp;#39;t support flakes
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───full: template: A template that shows all standard flake outputs
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───go-hello: template: A simple Go package
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───haskell-hello: template: A Hello World in Haskell with one dependency
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───haskell-nix: template: An haskell.nix template using hix
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───hercules-ci: template: An example for Hercules-CI, containing only the necessary attributes for adding to your project.
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───pandoc-xelatex: template: A report built with Pandoc, XeLaTex and a custom font
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───python: template: Python template, using poetry2nix
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust: template: Rust template, using Naersk
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust-web-server: template: A Rust web server including a NixOS module
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───simpleContainer: template: A NixOS container running apache-httpd
+&lt;&#x2F;span&gt;&lt;span&gt;    └───trivial: template: A very basic flake
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I&#x27;m told these are not necessarily the best templates to use, since they have pretty limited scope and tend to be out of date.&lt;&#x2F;p&gt;
+&lt;p&gt;List community maintained templates from a Github repo:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix flake show github:the-nix-way&#x2F;dev-templates
+&lt;&#x2F;span&gt;&lt;span&gt;github:the-nix-way&#x2F;dev-templates&#x2F;0ea67a261e12a8d02d773cdc588baccf8397cc25
+&lt;&#x2F;span&gt;&lt;span&gt;└───templates
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───clojure: template: Clojure development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───csharp: template: C# development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───cue: template: Cue development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───dhall: template: Dhall development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───elixir: template: Elixir development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───elm: template: Elm development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───gleam: template: Gleam development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───go: template: Go (Golang) development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───hashi: template: HashiCorp DevOps tools development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───haskell: template: Haskell development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───java: template: Java development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───kotlin: template: Kotlin development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───latex: template: LaTeX development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───nickel: template: Nickel development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───nim: template: Nim development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───nix: template: Nix development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───node: template: Node.js development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───opa: template: Open Policy Agent development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───php: template: PHP development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───protobuf: template: Protobuf development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───pulumi: template: Pulumi development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───purescript: template: Purescript development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───python: template: Python development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rt: template: Rust development environment with Rust version defined by a rust-toolchain.toml file
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───ruby: template: Ruby development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust: template: Rust development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust-toolchain: template: Rust development environment with Rust version defined by a rust-toolchain.toml file
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───scala: template: Scala development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───shell: template: Shell script development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    └───zig: template: Zig development environment
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Thomas rec&#x27;d &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;the-nix-way&#x2F;dev-templates&quot;&gt;The Nix Way&lt;&#x2F;a&gt; as a high quality source of templates!&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;using-a-template&quot;&gt;Using a template&lt;&#x2F;h2&gt;
+&lt;p&gt;Initialize a rust template in the current directory:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix flake init -t github:the-nix-way&#x2F;dev-templates#rust
+&lt;&#x2F;span&gt;&lt;span&gt;wrote: &#x2F;home&#x2F;elias&#x2F;src&#x2F;nix-test-too&#x2F;flake.nix
+&lt;&#x2F;span&gt;&lt;span&gt;wrote: &#x2F;home&#x2F;elias&#x2F;src&#x2F;nix-test-too&#x2F;flake.lock
+&lt;&#x2F;span&gt;&lt;span&gt;wrote: &#x2F;home&#x2F;elias&#x2F;src&#x2F;nix-test-too&#x2F;.envrc
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The generated &lt;code&gt;flake.nix&lt;&#x2F;code&gt; defines a baseline development environment for rust projects, while &lt;code&gt;flake.lock&lt;&#x2F;code&gt; acts as a package lock file to track when versions change. Bonus points for the &lt;code&gt;.envrc&lt;&#x2F;code&gt; file to hook into &lt;a href=&quot;https:&#x2F;&#x2F;direnv.net&#x2F;&quot;&gt;direnv&lt;&#x2F;a&gt; and auto-load the flake when entering the directory!&lt;&#x2F;p&gt;
+&lt;p&gt;Assuming we don&#x27;t have &lt;code&gt;direnv&lt;&#x2F;code&gt;, we can use &lt;code&gt;nix develop&lt;&#x2F;code&gt; to enter a new dev shell based on the flake:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix develop
+&lt;&#x2F;span&gt;&lt;span&gt;[dev shell] $ cargo init
+&lt;&#x2F;span&gt;&lt;span&gt;     Created binary (application) package
+&lt;&#x2F;span&gt;&lt;span&gt;[dev shell] $ cargo run
+&lt;&#x2F;span&gt;&lt;span&gt;Hello, world!
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;flake-integration-with-git-is-kind-of-weird&quot;&gt;Flake integration with Git is kind of weird&lt;&#x2F;h2&gt;
+&lt;p&gt;If you&#x27;re working in a directory that uses Git for version control then your flake files will only work once you &lt;code&gt;git add&lt;&#x2F;code&gt; them to the project. This is mentioned &lt;a href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Flakes#Git_WARNING&quot;&gt;extremely briefly&lt;&#x2F;a&gt; in the docs. If you aren&#x27;t using Git then flakes will work fine.&lt;&#x2F;p&gt;
+&lt;p&gt;In the rust example above the directory starts out without version control, but gets initialized with a git repo as part of &lt;code&gt;cargo init&lt;&#x2F;code&gt;. This means if you exit the dev shell and then try to re-run &lt;code&gt;nix develop&lt;&#x2F;code&gt; in the newly version controlled repo you&#x27;ll get a cryptic error message:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix develop
+&lt;&#x2F;span&gt;&lt;span&gt;warning: Git tree is dirty
+&lt;&#x2F;span&gt;&lt;span&gt;error: getting status of &amp;#39;&#x2F;nix&#x2F;store&#x2F;0ccnxa25whszw7mgbgyzdm4nqc0zwnm8-source&#x2F;flake.nix&amp;#39;: No such file or directory
+&lt;&#x2F;span&gt;&lt;span&gt;$ git add flake.nix flake.lock
+&lt;&#x2F;span&gt;&lt;span&gt;$ nix develop
+&lt;&#x2F;span&gt;&lt;span&gt;warning: Git tree is dirty
+&lt;&#x2F;span&gt;&lt;span&gt;[dev shell] $ cargo run
+&lt;&#x2F;span&gt;&lt;span&gt;Hello, world!
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;open-questions-further-reading&quot;&gt;Open questions, further reading&lt;&#x2F;h2&gt;
+&lt;p&gt;For the first time in a good while I&#x27;m actually excited to learn more about how Nix works!&lt;&#x2F;p&gt;
+&lt;p&gt;With regards to flakes I&#x27;m still wondering how I&#x27;ll go about finding a good flake template for less common dev environments. I also anticipate some issues with using flakes on version controlled projects where I can&#x27;t check in the generated files. Not every project is interested in taking on Nix tooling, and in the past I&#x27;ve dealt with that by just not checking in my nix shell config to version control.&lt;&#x2F;p&gt;
+&lt;p&gt;A few resources I&#x27;d like to follow up with to deepen my understanding:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;More details about flakes &lt;a href=&quot;https:&#x2F;&#x2F;jvns.ca&#x2F;blog&#x2F;2023&#x2F;11&#x2F;11&#x2F;notes-on-nix-flakes&#x2F;&quot;&gt;https:&#x2F;&#x2F;jvns.ca&#x2F;blog&#x2F;2023&#x2F;11&#x2F;11&#x2F;notes-on-nix-flakes&#x2F;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;A practical guide to using Nix with a focus on flakes &lt;a href=&quot;https:&#x2F;&#x2F;zero-to-nix.com&#x2F;&quot;&gt;https:&#x2F;&#x2F;zero-to-nix.com&#x2F;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+</feed>
