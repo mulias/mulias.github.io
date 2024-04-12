@@ -2,7 +2,9 @@
   <li class="post-preview">
     <h3 class="post-title"><a href="{{ post.permalink }}">{{ post.title }}</a></h3>
     <small>
-      {{ post.date | date(format="%B %d, %Y") }}
+      {% if post.date -%}
+        {{ post.date | date(format="%B %d, %Y") }}
+      {%- endif %}
     </small>
   </li>
 {% endmacro input %}

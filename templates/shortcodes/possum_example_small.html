@@ -1,0 +1,28 @@
+<form action="" class="possum-example small">
+  <div class="inputs-row">
+    <label class="input">
+      <span class="label-text">Input</span>
+      <input
+        type="text"
+        name="possumInput"
+        class="input"
+        value="{{ input }}"
+        data-reset="{{ input }}"
+      />
+    </label>
+
+    <label class="parser">
+      <span class="label-text">Parser</span>
+      <input
+        type="text"
+        name="possumParser"
+        class="parser"
+        value="{{ body }}"
+        data-reset="{{ body }}"
+      />
+      <input type="submit" value="Run!"/>
+    </label>
+  </div>
+
+  <label class="output"></label>
+</form>

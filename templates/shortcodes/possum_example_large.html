@@ -1,0 +1,30 @@
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="{{ input_rows }}"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="{{ input }}"
+    >{{ input }}</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="{{ parser_rows }}"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="{{ body }}"
+    >{{ body }}</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>

@@ -104,3 +104,264 @@ table tbody tr:nth-of-type(even) {
 table tbody tr:last-of-type {
     border-bottom: 2px solid var(--accent-color);
 }
+
+code {
+  padding: 0 0.2rem;
+}
+
+form.possum-example {
+  width: 100%;
+  margin: 2rem 0 3rem 0;
+
+  .inputs-row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &.large label.input {
+    textarea {
+      border-bottom-width: 0.05em;
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  &.large label.parser {
+    textarea {
+      border-top-width: 0.05em;
+      border-top-right-radius: 0;
+      border-top-left-radius: 0;
+    }
+  }
+
+  &.small label.input {
+    width: calc(100% - 270px);
+
+    input[type=text] {
+      border-right-width: 0.05em;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  &.small label.parser {
+    input[type=text] {
+      border-left-width: 0.05em;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  label.success {
+    pre {
+      background-color: #f4fff4;
+      border-color: var(--accent-color);
+    }
+
+    .label-text {
+      color: var(--accent-color);
+      background: linear-gradient(0deg, #f4fff4 0%, #f4fff4 50%, white 50%);
+    }
+
+    .reset {
+      color: var(--accent-color);
+      border-bottom: 1px solid var(--accent-color);
+    }
+  }
+
+  label.failure {
+    pre {
+      background-color: #fff5f7;
+      border-color: #f6403b;
+    }
+
+    .label-text {
+      color: #f6403b;
+      background: linear-gradient(0deg, #fff5f7 0%, #fff5f7 50%, white 50%);
+    }
+
+    .reset {
+      color: #f6403b;
+      border-bottom: 1px solid #f6403b;
+    }
+  }
+
+  label {
+    position: relative;
+    display: flex;
+    width: 100%;
+  }
+
+  label.output:not(:empty) {
+    margin-top: 1rem;
+  }
+
+  .reset {
+    cursor: pointer;
+    text-decoration: none;
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    font-size: 1rem;
+  }
+
+  .label-text {
+    position: absolute;
+    color: #353535;
+    left: 1.2em;
+    top: -0.75em;
+    padding: 0 0.5em;
+    text-transform: uppercase;
+    font-size: 0.75em;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    background: white;
+    border-radius: 8px;
+    z-index: 5;
+  }
+
+  input[type=text] {
+    width: 100%;
+    font-family: monospace, monospace;
+    font-size: 1.25rem;
+    padding: 0.8em 1em;
+    border: 0.1em solid gray;
+    border-radius: 0.8em;
+
+    &:focus {
+      z-index: 3;
+    }
+
+    &.parser {
+      padding-right: calc(1em + 70px);
+    }
+  }
+
+  textarea {
+    width: 100%;
+    font-family: monospace, monospace;
+    font-size: 1.25rem;
+    padding: 1.2em 1em;
+    border: 0.1em solid gray;
+    border-radius: 0.8em;
+    resize: vertical;
+
+    &:focus {
+      z-index: 3;
+    }
+
+    &.parser {
+      padding-right: calc(1em + 70px);
+    }
+  }
+
+  pre {
+    width: 100%;
+    font-size: 1.25rem;
+    font-family: monospace, monospace;
+    line-height: 1.2em;
+    padding: 0.8em 3em 0.8em 1em;
+    margin: 0;
+    border: 0.1em solid gray;
+    border-radius: 0.8em;
+
+    display: block;
+
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+  }
+
+  input[type="submit"] {
+    background-color: #ffed58;
+    border-radius: 12px;
+    color: #000;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 10px 15px;
+    text-align: center;
+    transition: 200ms;
+    box-sizing: border-box;
+    border: 0;
+    font-size: 16px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    position: absolute;
+    width: 70px;
+    right: 2px;
+    top: 2px;
+    height: 56px;
+    border-radius: 0.8em;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    z-index: 5;
+
+    &.large {
+      border-radius: 0.8em;
+      right: 8px;
+      top: unset;
+      bottom: 8px;
+    }
+
+    &:hover {
+      background-color: #ffe930;
+    }
+  }
+
+  .fade-in { animation: fadeIn 0.5s; }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+}
+
+@media (max-width: 880px) {
+  form.possum-example.small {
+    .inputs-row {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label.input {
+      width: 100%;
+
+      input[type=text] {
+        border-width: 0.1em;
+        border-bottom-width: 0.05em;
+        border-top-left-radius: 0.8em;
+        border-top-right-radius: 0.8em;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+    }
+
+    label.parser {
+      input[type=text] {
+        border-width: 0.1em;
+        border-top-width: 0.05em;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-left-radius: 0.8em;
+        border-bottom-right-radius: 0.8em;
+      }
+    }
+
+    input[type=text] {
+      padding: 1.2em 1em;
+      &.parser {
+        padding-right: calc(1em + 70px);
+      }
+    }
+
+    input[type="submit"] {
+      border-radius: 0.8em;
+      right: 8px;
+      top: unset;
+      bottom: 8px;
+    }
+  }
+}
