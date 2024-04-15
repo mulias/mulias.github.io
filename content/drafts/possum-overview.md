@@ -353,20 +353,20 @@ N <- number $ [N, N, N]
 {% end %}
 
 {% possum_example_small(input="153") %}
-[1, N, 3] <- array(digit) $ N
+[1,N,3] <- array(digit) $ N
 {% end %}
 
 ### Sequence
 
 The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`. This behavior is similar to `>`, but `&` has a more general precidence, grouping parts of a parser together similar to parentheses. Instead of grouping like this:
 
-{% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=1) %}
+{% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=3) %}
 int > ws > (int | "foo") > ws > (int | "bar")
 {% end %}
 
 A sequence of parsers can be written like this:
 
-{% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=1) %}
+{% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=3) %}
 int & ws & int | "foo" & ws & int | "bar"
 {% end %}
 
@@ -374,10 +374,10 @@ int & ws & int | "foo" & ws & int | "bar"
 
 Using the return, destructure, and sequence operators together we can implement a very common pattern in Possum -- matching a sequence of parsers, destructuring to assign values to variables, and then building a return value using the variables.
 
-{% possum_example_large(input="12 + 99" input_rows=1 parser_rows=4) %}
-Left  <- int  & ws &
+{% possum_example_large(input="12 + 99" input_rows=1 parser_rows=6) %}
+Left  <- int   & ws &
 Op    <- token & ws &
-Right <- int  $
+Right <- int   $
 {"left": Left, "op": Op, "right": Right}
 {% end %}
 
@@ -387,7 +387,7 @@ TODO: Give this another pass, come up with a better example for parameterized pa
 
 Parsers are split up and reused by defining the parser and then using it by name. Parser definitions can be separated by semicolons or newlines.
 
-{% possum_example_large(input="first=88 second=0 third=-10" input_rows=1 parser_rows=3) %}
+{% possum_example_large(input="first=88 second=0 third=-10" input_rows=1 parser_rows=5) %}
 field = alphas > "=" > int
 
 array_sep(field, ws)
@@ -407,7 +407,7 @@ a parser where the value `Then` is returned when the parser `condition`
 succeeds, otherwise `if` fails. Note that parser variables are always
 `snake_case` while value variables are always `UpperCamelCase`.
 
-{% possum_example_large(input="12" input_rows=1 parser_rows=3) %}
+{% possum_example_large(input="12" input_rows=1 parser_rows=5) %}
 if(condition, Then) = condition $ Then
 
 if(12, true)
@@ -415,7 +415,7 @@ if(12, true)
 
 Parsers can be recursive and referenced before they are defined.
 
-{% possum_example_large(input="{{1;{5;7}};{12;3}}" input_rows=1 parser_rows=8) %}
+{% possum_example_large(input="{{1;{5;7}};{12;3}}" input_rows=1 parser_rows=10) %}
 int_or_tuple
 
 int_or_tuple = int | tuple
@@ -481,7 +481,7 @@ both column and row separators.
 {% possum_example_large(input="1 2 3 4 5
 0 1 2 3 4
 4 5 6 1 2", input_rows=3, parser_rows=1) %}
-table_sep(number, spaces, nl)
+table_sep(num, spaces, nl)
 {% end %}
 
 ## Conclusion

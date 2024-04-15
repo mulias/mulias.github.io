@@ -92,7 +92,6 @@ table td {
     padding: 10px 12px;
 }
 
-
 table tbody tr {
     border-bottom: 1px solid var(--table-border-bottom);
 }
@@ -120,7 +119,7 @@ form.possum-example {
 
   &.large label.input {
     textarea {
-      border-bottom-width: 0.05em;
+      border-bottom-width: 1px;
       border-bottom-right-radius: 0;
       border-bottom-left-radius: 0;
     }
@@ -128,7 +127,7 @@ form.possum-example {
 
   &.large label.parser {
     textarea {
-      border-top-width: 0.05em;
+      border-top-width: 1px;
       border-top-right-radius: 0;
       border-top-left-radius: 0;
     }
@@ -136,17 +135,24 @@ form.possum-example {
 
   &.small label.input {
     width: calc(100% - 270px);
+    height: 60px;
 
     input[type=text] {
-      border-right-width: 0.05em;
+      border-right-width: 1px;
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
+
+      &:focus {
+        z-index: 8;
+      }
     }
   }
 
   &.small label.parser {
+    height: 60px;
+
     input[type=text] {
-      border-left-width: 0.05em;
+      border-left-width: 1px;
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
@@ -200,8 +206,8 @@ form.possum-example {
     cursor: pointer;
     text-decoration: none;
     position: absolute;
-    right: 16px;
-    bottom: 16px;
+    right: 1rem;
+    bottom: 1rem;
     font-size: 1rem;
   }
 
@@ -217,7 +223,7 @@ form.possum-example {
     cursor: pointer;
     background: white;
     border-radius: 8px;
-    z-index: 5;
+    z-index: 10;
   }
 
   input[type=text] {
@@ -225,11 +231,15 @@ form.possum-example {
     font-family: monospace, monospace;
     font-size: 1.25rem;
     padding: 0.8em 1em;
-    border: 0.1em solid gray;
-    border-radius: 0.8em;
+    border: 2px solid gray;
+    border-radius: 16px;
+    text-overflow: ellipsis;
 
     &:focus {
       z-index: 3;
+      outline-color: #ff7e94;
+      outline-width: 2px;
+      outline-style: solid;
     }
 
     &.parser {
@@ -242,16 +252,16 @@ form.possum-example {
     font-family: monospace, monospace;
     font-size: 1.25rem;
     padding: 1.2em 1em;
-    border: 0.1em solid gray;
-    border-radius: 0.8em;
+    border: 2px solid gray;
+    border-radius: 16px;
     resize: vertical;
+    white-space: pre;
 
     &:focus {
       z-index: 3;
-    }
-
-    &.parser {
-      padding-right: calc(1em + 70px);
+      outline-color: #ff7e94;
+      outline-width: 2px;
+      outline-style: solid;
     }
   }
 
@@ -260,10 +270,10 @@ form.possum-example {
     font-size: 1.25rem;
     font-family: monospace, monospace;
     line-height: 1.2em;
-    padding: 0.8em 3em 0.8em 1em;
+    padding: 16px 48px 16px 16px;
     margin: 0;
-    border: 0.1em solid gray;
-    border-radius: 0.8em;
+    border: 2px solid gray;
+    border-radius: 16px;
 
     display: block;
 
@@ -285,7 +295,7 @@ form.possum-example {
     transition: 200ms;
     box-sizing: border-box;
     border: 0;
-    font-size: 16px;
+    font-size: 0.8em;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
@@ -294,13 +304,13 @@ form.possum-example {
     right: 2px;
     top: 2px;
     height: 56px;
-    border-radius: 0.8em;
+    border-radius: 14px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     z-index: 5;
 
     &.large {
-      border-radius: 0.8em;
+      border-radius: 16px;
       right: 8px;
       top: unset;
       bottom: 8px;
@@ -320,6 +330,16 @@ form.possum-example {
 }
 
 @media (max-width: 880px) {
+  form.possum-example {
+    pre {
+      font-size: 1rem;
+    }
+
+    .reset {
+      bottom: 0.9rem;
+    }
+  }
+
   form.possum-example.small {
     .inputs-row {
       display: flex;
@@ -330,10 +350,10 @@ form.possum-example {
       width: 100%;
 
       input[type=text] {
-        border-width: 0.1em;
-        border-bottom-width: 0.05em;
-        border-top-left-radius: 0.8em;
-        border-top-right-radius: 0.8em;
+        border-width: 2px;
+        border-bottom-width: 1px;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
       }
@@ -341,27 +361,45 @@ form.possum-example {
 
     label.parser {
       input[type=text] {
-        border-width: 0.1em;
-        border-top-width: 0.05em;
+        border-width: 2px;
+        border-top-width: 1px;
         border-top-left-radius: 0;
         border-top-right-radius: 0;
-        border-bottom-left-radius: 0.8em;
-        border-bottom-right-radius: 0.8em;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
       }
     }
 
     input[type=text] {
+      font-size: 1rem;
       padding: 1.2em 1em;
       &.parser {
-        padding-right: calc(1em + 70px);
+        padding-right: calc(0.5em + 60px);
       }
     }
 
     input[type="submit"] {
-      border-radius: 0.8em;
-      right: 8px;
+      border-radius: 14px;
+      height: 48px;
+      width: 60px;
+      right: 6px;
       top: unset;
-      bottom: 8px;
+      bottom: 6px;
+    }
+  }
+
+  form.possum-example.large {
+    textarea {
+      font-size: 1rem;
+    }
+
+    input[type="submit"] {
+      border-radius: 14px;
+      height: 48px;
+      width: 60px;
+      right: 6px;
+      top: unset;
+      bottom: 6px;
     }
   }
 }
