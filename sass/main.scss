@@ -109,6 +109,14 @@ code {
 }
 
 form.possum-example {
+  --success-fg: var(--accent-color);
+  --success-bg: #f4fff4;
+  --failure-fg: #ff6b66;
+  --failure-bg: #fff5f7;
+  --input-focus-color: #ff89c0;
+  --button-bg: #ffed58;
+  --button-active-bg: #ffe930;
+
   width: 100%;
   margin: 2rem 0 3rem 0;
 
@@ -160,35 +168,38 @@ form.possum-example {
 
   label.success {
     pre {
-      background-color: #f4fff4;
-      border-color: var(--accent-color);
+      background-color: var(--success-bg);
+      color: var(--success-fg);
+      border-color: var(--success-fg);
     }
 
     .label-text {
-      color: var(--accent-color);
-      background: linear-gradient(0deg, #f4fff4 0%, #f4fff4 50%, white 50%);
+      color: var(--success-fg);
+      background: linear-gradient(0deg, var(--success-bg) 0%, var(--success-bg) 50%, white 50%);
     }
 
     .reset {
-      color: var(--accent-color);
-      border-bottom: 1px solid var(--accent-color);
+      color: var(--success-fg);
+      text-decoration: underline;
+      text-underline-offset: 0.2rem;
     }
   }
 
   label.failure {
     pre {
-      background-color: #fff5f7;
-      border-color: #f6403b;
+      background-color: var(--failure-bg);
+      border-color: var(--failure-fg);
     }
 
     .label-text {
-      color: #f6403b;
-      background: linear-gradient(0deg, #fff5f7 0%, #fff5f7 50%, white 50%);
+      color: var(--failure-fg);
+      background: linear-gradient(0deg, var(--failure-bg) 0%, var(--failure-bg) 50%, white 50%);
     }
 
     .reset {
-      color: #f6403b;
-      border-bottom: 1px solid #f6403b;
+      color: var(--failure-fg);
+      text-decoration: underline;
+      text-underline-offset: 0.2rem;
     }
   }
 
@@ -237,7 +248,7 @@ form.possum-example {
 
     &:focus {
       z-index: 3;
-      outline-color: #ff7e94;
+      outline-color: var(--input-focus-color);
       outline-width: 2px;
       outline-style: solid;
     }
@@ -259,7 +270,7 @@ form.possum-example {
 
     &:focus {
       z-index: 3;
-      outline-color: #ff7e94;
+      outline-color: var(--input-focus-color);
       outline-width: 2px;
       outline-style: solid;
     }
@@ -285,9 +296,8 @@ form.possum-example {
   }
 
   input[type="submit"] {
-    background-color: #ffed58;
+    background-color: var(--button-bg);
     border-radius: 12px;
-    color: #000;
     cursor: pointer;
     font-weight: bold;
     padding: 10px 15px;
@@ -317,7 +327,7 @@ form.possum-example {
     }
 
     &:hover {
-      background-color: #ffe930;
+      background-color: var(--button-active-bg);
     }
   }
 
