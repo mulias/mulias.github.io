@@ -124,14 +124,10 @@ Parse and return one or more alphanumeric characters with `word`. This parser al
 word
 {% end %}
 
-Some parsers are parametrized by other parsers. The standard library parsers `many(p)` and `until(p, stop)` both run a parser one or more times, returning the concatenation of all of the parsed values.
+Some parsers are parametrized by other parsers. The parser `many(p)` tries to run the parser `p` repeatedly until it no longer succeeds, and returns the concatenation of all of the parsed values.
 
 {% possum_example_small(input="abcdefg1234") %}
 many("a".."d")
-{% end %}
-
-{% possum_example_small(input="abcdefg1234") %}
-until(char, 3)
 {% end %}
 
 ### Parsing Whitespace
@@ -235,7 +231,7 @@ The infix "or" operator `p1 | p2` tries to match `p1` and then if that fails tri
 The "take right" operator `p1 > p2` matches `p1` and then matches and returns `p2`.
 
 {% possum_example_small(input="one two") %}
-"one" > space > "two"
+"one" > ws > "two"
 {% end %}
 
 ### Take Left
@@ -253,7 +249,7 @@ Similarly the "take left" operator `p1 < p2` matches `p1`, keeps the result, the
 If `p1` succeeds but `p2` fails, the whole parser fails.
 
 {% possum_example_small(input="one three") %}
-"one" < (" two" | " four")
+"one" < ws < "two"
 {% end %}
 
 ### Merge
