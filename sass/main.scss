@@ -114,8 +114,8 @@ form.possum-example {
   --failure-fg: #ff6b66;
   --failure-bg: #fff5f7;
   --input-focus-color: #ff89c0;
-  --button-bg: #ffed58;
-  --button-active-bg: #ffe930;
+  --button-bg: #fdec66;
+  --button-active-bg: #ffeb4d;
 
   width: 100%;
   margin: 2rem 0 3rem 0;
@@ -325,7 +325,7 @@ form.possum-example {
       bottom: 8px;
     }
 
-    &:hover {
+    &:hover, &:active {
       background-color: var(--button-active-bg);
     }
   }

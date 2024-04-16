@@ -7,21 +7,25 @@ fix_the_dang_highlighting = "~~"
 scripts = [ "possum.js" ]
 +++
 
-[Possum](https://github.com/mulias/possum_parser_language) is a domain specific scripting language for turning plain text into JSON. It's available as a command line tool, but it also runs in the browser! This guide covers the basics of Possum using interactive examples, and should give you enough context to handle a wide range of parsing situations.
+[Possum](https://github.com/mulias/possum_parser_language) is a domain-specific language designed for processing text, inspired by classic Unix utilities like [AWK](https://en.wikipedia.org/wiki/AWK) and [sed](https://en.wikipedia.org/wiki/Sed). You can use Possum for tasks ranging from single-line command line scripts for data extraction, to quickly prototyping a new programming language syntax. The language has a minimalist and focused feature set, and uses a [combinatorial parsing](https://en.wikipedia.org/wiki/Parser_combinator) approach for writing declarative programs that are both compact and readable.
 
-TODO: Add some motivation -- what is possum good at, what makes it interesting to use/learn?
+This guide teaches the basics of Possum using interactive examples, and should give you enough context to handle a wide range of parsing situations. If you're checking out Possum for the first time and want to learn more about the language at a higher level, I'm planning on writing separate articles about the design philosophy behind Possum, and examples of parsing larger and more complex input cases.
 
-TODO: Disclaimer about Possum's error messages still being in development.
+#### ⚠️  Work In Progress ⚠️
+
+Possum is still in development. Most of the core functionality is in place, but there are a couple of rough edges. The one you'll likely notice is that error messages are mostly placeholders, and will be pretty unhelpful. Rest assured we've got a team of marsupials working around the clock to correct this issue.
 
 ## The Basics
 
-TODO: Articulate that every Possum program is a specification for a parser that is ran on input text. The output of running a Possum program is JSON.
+A Possum program is made up of parsers, functions that define both what text inputs are valid, and how to transform valid inputs into structured data. The Possum runtime takes a program and an input string and either successfully parses the input into a JSON encoded value, or fails if the input was malformed.
+
+This section covers parsers that expect the input to match specific strings or numbers, and then returns the matched value unchanged. Later on we'll introduce ways to compose these basic parsers together to make compound parsers that can validate more complex inputs and produce any JSON value as output.
 
 ### Literal Parsers
 
-String literals are parsers which match the exact text of a string and return a string value on success.
+String literals are parsers which match the exact text of the string and return the string value on success.
 
-Here's our first interactive example. The `Input` field is the text we're going to parse, while the `Parser` field is the Possum program. Try running the program once to see it succeed, and then change either the input or parser value to experiment with the string matching behavior.
+Here's our first interactive example! The `Input` field is the text we're going to parse, while the `Parser` field is the Possum program. Try running the program once to see it succeed, and then change either the input or parser to experiment with the string matching behavior.
 
 {% possum_example_small(input="Hello World!") %}
 "Hello World!"
@@ -33,7 +37,7 @@ String literals can be created with double or single quotes. JSON strings are en
 'Time to "parse some text"'
 {% end %}
 
-Number literals are parsers which match the exact digits of a number and return a number value on success. Possum supports the same number formats as JSON, which includes positive and negative numbers, integers, and numbers with fraction or exponent parts.
+Number literals are parsers which match the exact digits of a number and return the number value on success. Possum supports the same number format as JSON, which includes positive and negative numbers, integers, and numbers with fraction and/or exponent parts.
 
 {% possum_example_small(input="1245") %}
 12
@@ -53,19 +57,19 @@ Number literals are parsers which match the exact digits of a number and return 
 
 ### Range Parsers
 
-Character ranges are parsers that match a single ASCII character or Unicode code point that falls within an inclusive range.
+Character ranges are parsers that match a single Unicode code point that falls within an inclusive range.
 
 {% possum_example_small(input="g") %}
 "a".."z"
 {% end %}
 
-TODO: Something about what a code point is, or about how we don't really have to worry about the exact details of Unicode (yet).
+Code points are, broadly speaking, how Unicode defines units of text. This means we can use character range parsers for more than just ASCII characters. The emoji 😄 is code point `U+1F604` and 🤠 is `U+1F920`, so 😅 (`U+1F605`) is in the range. It's worth noting that some symbols are made up of multiple code points stuck together, so character ranges won't work for absolutely everything that looks like a single character. This limitation shouldn't be an issue in the vast majority of parsing use cases.
 
 {% possum_example_small(input="😅") %}
-"😄".."🫠"
+"😄".."🤠"
 {% end %}
 
-Finally, integer ranges are parsers that match all integers that fall within an inclusive range.
+Integer ranges use the same `..` syntax, but match all integers that fall within an inclusive range.
 
 {% possum_example_small(input="77") %}
 1..9
@@ -126,7 +130,7 @@ word
 
 Some parsers are parametrized by other parsers. The parser `many(p)` tries to run the parser `p` repeatedly until it no longer succeeds, and returns the concatenation of all of the parsed values.
 
-{% possum_example_small(input="abcdefg1234") %}
+{% possum_example_small(input="abcdefg") %}
 many("a".."d")
 {% end %}
 
@@ -158,15 +162,19 @@ whitespace
 
 ### Parsing Numbers
 
-TODO: Explain how numbers work.
+The `digit` parser matches a single Arabic numeral between `0` and `9`, and returns the numeral as an integer.
 
 {% possum_example_small(input="31987abc") %}
 digit
 {% end %}
 
+Parse any valid JSON integer with `integer`, or the alias `int`.
+
 {% possum_example_small(input="31987abc") %}
 integer
 {% end %}
+
+Parse any valid JSON number with `number` or `num`. This includes numbers with fraction and/or exponent parts.
 
 {% possum_example_small(input="12.45e-10xyz") %}
 number
@@ -194,7 +202,7 @@ null(number)
 
 ### Parsing Collections
 
-Finally `array(elem)` and `object(key, value)` return ordered list collections (arrays) and key/value pair collections (objects).
+Finally, `array(elem)` and `object(key, value)` return ordered list collections (arrays) and key/value pair collections (objects).
 
 {% possum_example_small(input="1010111001") %}
 array(digit)
@@ -206,15 +214,17 @@ object(alpha, int)
 
 Collections frequently use separator characters between elements. You can use `array_sep(elem, sep)` and `object_sep(key, pair_sep, value, sep)` to handle these cases, parsing the separators but excluding them from the result.
 
-{% possum_example_small(input="1,2,3,4,5,6") %}
-array_sep(int, ',')
+{% possum_example_small(input="1 2 3 4 5 6") %}
+array_sep(int, ' ')
 {% end %}
 
-{% possum_example_large(input="foo:33,bar:1" input_rows=1 parser_rows=1) %}
-object_sep(many(alpha), ":", int, ",")
+{% possum_example_large(input="foo=33;bar=1" input_rows=1 parser_rows=3) %}
+object_sep(many(alpha), "=", int, ";")
 {% end %}
 
 ## Composing Parsers
+
+We've now covered both basic parsers for strings and numbers, and high-level parser
 
 TODO: Something should go here? Maybe something about how large parsers are created by sticking together smaller parsers with infix operators.
 
@@ -231,7 +241,7 @@ The infix "or" operator `p1 | p2` tries to match `p1` and then if that fails tri
 The "take right" operator `p1 > p2` matches `p1` and then matches and returns `p2`.
 
 {% possum_example_small(input="one two") %}
-"one" > ws > "two"
+"one" > " " > "two"
 {% end %}
 
 ### Take Left
@@ -239,7 +249,7 @@ The "take right" operator `p1 > p2` matches `p1` and then matches and returns `p
 Similarly the "take left" operator `p1 < p2` matches `p1`, keeps the result, then matches `p2`. If both succeed then `p1` is returned.
 
 {% possum_example_small(input="one two") %}
-"one" < " two"
+"one" < " " < "two"
 {% end %}
 
 {% possum_example_small(input="(5)") %}
@@ -249,7 +259,7 @@ Similarly the "take left" operator `p1 < p2` matches `p1`, keeps the result, the
 If `p1` succeeds but `p2` fails, the whole parser fails.
 
 {% possum_example_small(input="one three") %}
-"one" < ws < "two"
+"one" < " " < "two"
 {% end %}
 
 ### Merge
@@ -354,7 +364,7 @@ N <- number $ [N, N, N]
 
 ### Sequence
 
-The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`. This behavior is similar to `>`, but `&` has a more general precidence, grouping parts of a parser together similar to parentheses. Instead of grouping like this:
+The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`. This behavior is similar to `>`, but `&` has a more general precidence, grouping parts of a parser together in a similar way to parentheses. Instead of grouping like this:
 
 {% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=3) %}
 int > ws > (int | "foo") > ws > (int | "bar")
@@ -424,7 +434,7 @@ tuple = "{" &
 
 ## A Few More Standard Library Parsers
 
-At this point you should be well equipped to browse the standard library, but here are a few more parsers that you might find particularly useful.
+At this point you should be well equipped to [browse the standard library](https://github.com/mulias/possum_parser_language/blob/main/docs/stdlib.md), but here are a few more parsers that you might find particularly useful.
 
 The parser `maybe(p)` runs `p` and either returns the parsed value if `p` succeeds, or returns `null` if `p` fails. This means `maybe(p)` will never fail, and can be merged with any other value in a concatinated output.
 
@@ -443,7 +453,6 @@ The parser `default(p, D)` sets a default value to return if the parser fails.
 {% possum_example_small(input="foobaz") %}
 default(number, 10)
 {% end %}
-
 
 Once you're happy with a parser, you may want to ensure that it always parses
 the whole input by using `end_of_input` or `end` to specify that the end of the
@@ -482,7 +491,7 @@ table_sep(num, spaces, nl)
 
 ## Conclusion
 
-Some things that could go in a conclusion section:
+TODO: Some things that could go in a conclusion section...
 
 - The hero returns home from their journey, changed by the experience. Here's
 `hello world` again, but now you know a bit more about how to mess with it!
