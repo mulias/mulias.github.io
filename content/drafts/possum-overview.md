@@ -7,7 +7,7 @@ fix_the_dang_highlighting = "~~"
 scripts = [ "possum.js" ]
 +++
 
-[Possum](https://github.com/mulias/possum_parser_language) is a domain-specific language designed for processing text, inspired by classic Unix utilities like [AWK](https://en.wikipedia.org/wiki/AWK) and [sed](https://en.wikipedia.org/wiki/Sed). You can use Possum for tasks ranging from single-line command line scripts for data extraction, to quickly prototyping a new programming language syntax. The language has a minimalist and focused feature set, and uses a [combinatorial parsing](https://en.wikipedia.org/wiki/Parser_combinator) approach for writing declarative programs that are both compact and readable.
+[Possum](https://github.com/mulias/possum_parser_language) is a domain-specific language designed for parsing text, inspired by classic Unix utilities like [AWK](https://en.wikipedia.org/wiki/AWK) and [sed](https://en.wikipedia.org/wiki/Sed). You can use Possum for tasks ranging from single-line command line scripts for data extraction, to quickly prototyping a new programming language syntax. The language aims to make parsing friendly and fun, and uses a minimal feature set to write declarative programs that are both compact and readable.
 
 This guide teaches the basics of Possum using interactive examples, and should give you enough context to handle a wide range of parsing situations. If you're checking out Possum for the first time and want to learn more about the language at a higher level, I'm planning on writing separate articles about the design philosophy behind Possum, and examples of parsing larger and more complex input cases.
 
@@ -25,7 +25,7 @@ This section covers parsers that expect the input to match specific strings or n
 
 String literals are parsers which match the exact text of the string and return the string value on success.
 
-Here's our first interactive example! Typically Possum is ran from the command line, but in browser the `Input` field is the text we're going to parse, while the `Parser` field is the Possum program. Try running the program once to see it succeed, and then change either the input or parser to experiment with the string matching behavior.
+Here's our first interactive example! Typically Possum is run from the command line, but in the browser the `Input` field is the text we're going to parse, while the `Parser` field is the Possum program. Try running the program once to see it succeed, and then change either the input or parser to experiment with the string matching behavior.
 
 {% possum_example_small(input="Hello World!") %}
 "Hello World!"
@@ -289,7 +289,7 @@ Concatenate arrays:
 array(digit) + array(alpha)
 {% end %}
 
-Combine objects, adding fields from the right-side object to the left-side object, possibly replacing exisiting values:
+Combine objects, adding fields from the right-side object to the left-side object, possibly replacing existing values:
 
 {% possum_example_small(input="a0b0c0c1a1d1") %}
 object(char, 0) + object(char, 1)
@@ -400,7 +400,7 @@ Right <- int   $
 
 ## Defining Parsers
 
-A Possum program must have one *main parser*, and can optionally declare any number of *named parsers*. Parsers must be seperated either by newlines or semicolons. Named parsers are declared with the syntax `name = parser`. At runtime Possum finds and executes the main parser, which can reference named parsers declared in the program in the same way we reference named parsers from the standard library.
+A Possum program must have one *main parser*, and can optionally declare any number of *named parsers*. Parsers must be separated either by newlines or semicolons. Named parsers are declared with the syntax `name = parser`. At runtime Possum finds and executes the main parser, which can reference named parsers declared in the program in the same way we reference named parsers from the standard library.
 
 {% possum_example_large(input="first=88 second=0 third=-10" input_rows=1 parser_rows=5) %}
 field = alphas > "=" > int
@@ -433,13 +433,13 @@ tuple = "{" &
 
 At this point you should be well equipped to [browse the standard library](https://github.com/mulias/possum_parser_language/blob/main/docs/stdlib.md), but here are a few more parsers that you might find particularly useful.
 
-The parser `maybe(p)` runs `p` and either returns the parsed value if `p` succeeds, or returns `null` if `p` fails. This means `maybe(p)` will never fail, and can be merged with any other value in a concatinated output.
+The parser `maybe(p)` runs `p` and either returns the parsed value if `p` succeeds, or returns `null` if `p` fails. This means `maybe(p)` will never fail, and can be merged with any other value in a concatenated output.
 
 {% possum_example_small(input="foobaz") %}
 "foo" + maybe("bar") + "baz"
 {% end %}
 
-Similarly, `skip(p)` runs `p`, but on success always returns `null`. Since `null` can merge with any value this allows parts of the input to be ignored in a concatinated output.
+Similarly, `skip(p)` runs `p`, but on success always returns `null`. Since `null` can merge with any value this allows parts of the input to be ignored in a concatenated output.
 
 {% possum_example_small(input="foobarbaz") %}
 "foo" + skip("bar") + "baz"
@@ -456,7 +456,7 @@ If `end` finds unparsed input then it fails.
 int < end
 {% end %}
 
-Alternatively, `input(p)` wraps a parser to both strip surrounding whitespace and make sure the whole input it parsed.
+Alternatively, `input(p)` wraps a parser to both strip surrounding whitespace and make sure the whole input is parsed.
 
 {% possum_example_small(input="   123     ") %}
 input(int)
@@ -478,10 +478,14 @@ table_sep(num, spaces, nl)
 
 ## ~~~(##)'> Conclusion
 
+We've made it — that's just about everything you need to know to be productive with Possum. In the very first example we matched and returned a string input exactly, but with just a few changes we can extend that parser to handle any number of variations or requirements.
+
 {% possum_example_small(input="Hello Possum!") %}
 "Hello" + ws + alphas + "!"
 {% end %}
 
+Possum aims to make parsing friendly and fun by making it easy to compose complex parsers out of simple component parts. These kinds of parser systems are frequently called [parser combinators](https://en.wikipedia.org/wiki/Parser_combinator). Many modern languages have parser combinator libraries, but they're all implemented slightly differently from one another. Part of what Possum offers is a single set of powerful parsing utilities that can be integrated with almost any other programming language via JSON. On top of that, by focusing solely on parsing, Possum avoids much of the complexity that comes from trying to integrate parser combinators into an existing language.
+
 - [Github Repo](https://github.com/mulias/possum_parser_language/)
 - [Standard Library](https://github.com/mulias/possum_parser_language/blob/main/docs/stdlib.md)
-- [Examples](https://github.com/mulias/possum_parser_language/tree/main/examples)
+- [More Examples](https://github.com/mulias/possum_parser_language/tree/main/examples)
