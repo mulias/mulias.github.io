@@ -25,7 +25,7 @@ This section covers parsers that expect the input to match specific strings or n
 
 String literals are parsers which match the exact text of the string and return the string value on success.
 
-Here's our first interactive example! The `Input` field is the text we're going to parse, while the `Parser` field is the Possum program. Try running the program once to see it succeed, and then change either the input or parser to experiment with the string matching behavior.
+Here's our first interactive example! Typically Possum is ran from the command line, but in browser the `Input` field is the text we're going to parse, while the `Parser` field is the Possum program. Try running the program once to see it succeed, and then change either the input or parser to experiment with the string matching behavior.
 
 {% possum_example_small(input="Hello World!") %}
 "Hello World!"
@@ -87,13 +87,13 @@ Parsers always start matching from the beginning of the input and return the lon
 "match this: "
 {% end %}
 
-After parsing any extra input is thrown out. This means that the empty string `""` is a parser that always succeeds, no matter the input.
+After parsing, any extra input is thrown out. This means that the empty string `""` is a parser that always succeeds, no matter the input.
 
-{% possum_example_small(input="abc") %}
+{% possum_example_small(input="Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.") %}
 ""
 {% end %}
 
-If the parser fails to find a match Possum returns an error.
+If the parser fails to find a match, Possum returns an error.
 
 {% possum_example_small(input="no match here") %}
 "my parser"
@@ -113,19 +113,19 @@ char
 
 Parse and return an upper- or lower-case letter from the English alphabet with `alpha`. To parse multiple letters try changing `alpha` to `alphas`.
 
-{% possum_example_small(input="foo! bar") %}
+{% possum_example_small(input="Foo123! bar") %}
 alpha
+{% end %}
+
+Parse and return one or more alphanumeric characters with `word`. This parser also accepts `_` and `-`.
+{% possum_example_small(input="Foo123! bar") %}
+word
 {% end %}
 
 Parse and return one or more non-whitespace characters with `token`.
 
-{% possum_example_small(input="foo! bar") %}
+{% possum_example_small(input="Foo123! bar") %}
 token
-{% end %}
-
-Parse and return one or more alphanumeric characters with `word`. This parser also accepts `_` and `-`.
-{% possum_example_small(input="foo! bar") %}
-word
 {% end %}
 
 Some parsers are parametrized by other parsers. The parser `many(p)` tries to run the parser `p` repeatedly until it no longer succeeds, and returns the concatenation of all of the parsed values.
@@ -142,7 +142,7 @@ The `space` parser matches a single blank non-line-breaking character. This usua
 space
 {% end %}
 
-The `newline` parser matches and return a single line-breaking character. To parse multiple newlines use `newlines`. These parsers are aliased to the abbreviations `nl` and `nls`, respectively.
+The `newline` parser matches and returns a single line-breaking character. To parse multiple newlines use `newlines`. These parsers are aliased to the abbreviations `nl` and `nls`, respectively.
 
 {% possum_example_large(input="
 
@@ -224,15 +224,19 @@ object_sep(many(alpha), "=", int, ";")
 
 ## Composing Parsers
 
-We've now covered both basic parsers for strings and numbers, and high-level parser
-
-TODO: Something should go here? Maybe something about how large parsers are created by sticking together smaller parsers with infix operators.
+We've now covered both basic parsers for strings and numbers, and some of the high-level parser functions from Possum's standard library. In order to implement these kinds of parser functions ourselves we need to introduce one more major language feature — infix parser operators.
 
 ### Or
 
 The infix "or" operator `p1 | p2` tries to match `p1` and then if that fails tries to match `p2` instead.
 
 {% possum_example_small(input="two") %}
+"one" | "two"
+{% end %}
+
+If both parsers fail then the whole parser fails.
+
+{% possum_example_small(input="three") %}
 "one" | "two"
 {% end %}
 
@@ -244,9 +248,16 @@ The "take right" operator `p1 > p2` matches `p1` and then matches and returns `p
 "one" > " " > "two"
 {% end %}
 
+If either parser fails then the compound parser fails.
+
+{% possum_example_small(input="one two") %}
+"three" > " two"
+
+{% end %}
+
 ### Take Left
 
-Similarly the "take left" operator `p1 < p2` matches `p1`, keeps the result, then matches `p2`. If both succeed then `p1` is returned.
+Similarly the "take left" operator `p1 < p2` matches `p1`, keeps the result, then matches `p2`. If both succeed then the value parsed by `p1` is returned.
 
 {% possum_example_small(input="one two") %}
 "one" < " " < "two"
@@ -256,7 +267,7 @@ Similarly the "take left" operator `p1 < p2` matches `p1`, keeps the result, the
 "(" > int < ")"
 {% end %}
 
-If `p1` succeeds but `p2` fails, the whole parser fails.
+If either parser fails then the compound parser fails.
 
 {% possum_example_small(input="one three") %}
 "one" < " " < "two"
@@ -364,7 +375,7 @@ N <- number $ [N, N, N]
 
 ### Sequence
 
-The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`. This behavior is similar to `>`, but `&` has a more general precidence, grouping parts of a parser together in a similar way to parentheses. Instead of grouping like this:
+The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`. This behavior is similar to `>`, but `&` has a more general precedence, grouping parts of a parser together in a similar way to parentheses. Instead of grouping like this:
 
 {% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=3) %}
 int > ws > (int | "foo") > ws > (int | "bar")
@@ -389,9 +400,7 @@ Right <- int   $
 
 ## Defining Parsers
 
-TODO: Give this another pass, come up with a better example for parameterized parsers.
-
-Parsers are split up and reused by defining the parser and then using it by name. Parser definitions can be separated by semicolons or newlines.
+A Possum program must have one *main parser*, and can optionally declare any number of *named parsers*. Parsers must be seperated either by newlines or semicolons. Named parsers are declared with the syntax `name = parser`. At runtime Possum finds and executes the main parser, which can reference named parsers declared in the program in the same way we reference named parsers from the standard library.
 
 {% possum_example_large(input="first=88 second=0 third=-10" input_rows=1 parser_rows=5) %}
 field = alphas > "=" > int
@@ -399,27 +408,15 @@ field = alphas > "=" > int
 array_sep(field, ws)
 {% end %}
 
-Named Parsers can be parameterized with other parsers.
-```
-  $ possum -p 'field(p) = alphas > "=" > p ; field(int)' -i 'first=111'
-  111
+Named Parsers can be parameterized with both parsers and values. Note that parser params are always `snake_case` while value params are always `UpperCamelCase`.
 
-  $ possum -p 'first_field(p) = "first=" > p ; first_field(word)' -i 'first=One'
-  "One"
-```
-
-Named parsers can also be parameterized by values. Here's how to implement `if`,
-a parser where the value `Then` is returned when the parser `condition`
-succeeds, otherwise `if` fails. Note that parser variables are always
-`snake_case` while value variables are always `UpperCamelCase`.
-
-{% possum_example_large(input="12" input_rows=1 parser_rows=5) %}
+{% possum_example_large(input="12345" input_rows=1 parser_rows=5) %}
 if(condition, Then) = condition $ Then
 
-if(12, true)
+if(12345, "Password Accepted")
 {% end %}
 
-Parsers can be recursive and referenced before they are defined.
+Named parsers can be recursive and referenced before they are declared. The main parser can come before, after, or in between named parser declarations.
 
 {% possum_example_large(input="{{1;{5;7}};{12;3}}" input_rows=1 parser_rows=10) %}
 int_or_tuple
@@ -448,17 +445,9 @@ Similarly, `skip(p)` runs `p`, but on success always returns `null`. Since `null
 "foo" + skip("bar") + "baz"
 {% end %}
 
-The parser `default(p, D)` sets a default value to return if the parser fails.
+Once you're happy with a parser, you may want to ensure that it always parses the whole input by using `end_of_input` or `end` to specify that the end of the input has been reached.
 
-{% possum_example_small(input="foobaz") %}
-default(number, 10)
-{% end %}
-
-Once you're happy with a parser, you may want to ensure that it always parses
-the whole input by using `end_of_input` or `end` to specify that the end of the
-input has been reached.
-
-{% possum_example_small(input="12") %}
+{% possum_example_small(input="123") %}
 int < end
 {% end %}
 
@@ -467,21 +456,19 @@ If `end` finds unparsed input then it fails.
 int < end
 {% end %}
 
-Alternatively, `input(p)` wraps a parser to both strip surrounding whitespace
-and make sure the whole input it parsed.
+Alternatively, `input(p)` wraps a parser to both strip surrounding whitespace and make sure the whole input it parsed.
 
-{% possum_example_small(input="   12     ") %}
+{% possum_example_small(input="   123     ") %}
 input(int)
 {% end %}
 
 Use `scan(p)` to skip characters until the provided parser matches.
+
 {% possum_example_small(input="___test___83324____99") %}
 scan(number)
 {% end %}
 
-Similar to how `array_sep(elem, sep)` handles one-dimensional data with
-separators, `table_sep(array, sep, row_sep)` handles two dimensional data with
-both column and row separators.
+Similar to how `array_sep(elem, sep)` handles one-dimensional data with separators, `table_sep(array, sep, row_sep)` handles two dimensional data with both column and row separators.
 
 {% possum_example_large(input="1 2 3 4 5
 0 1 2 3 4
@@ -489,19 +476,12 @@ both column and row separators.
 table_sep(num, spaces, nl)
 {% end %}
 
-## Conclusion
-
-TODO: Some things that could go in a conclusion section...
-
-- The hero returns home from their journey, changed by the experience. Here's
-`hello world` again, but now you know a bit more about how to mess with it!
+## ~~~(##)'> Conclusion
 
 {% possum_example_small(input="Hello Possum!") %}
 "Hello" + ws + alphas + "!"
 {% end %}
 
-- Links to other blog posts (that don't exist yet). I'd at least like a blog
-post/live code page with more substantial examples, and another focusing on the
-design/implementation of the language.
-
-- Hannah says I can skip the conclusion!
+- [Github Repo](https://github.com/mulias/possum_parser_language/)
+- [Standard Library](https://github.com/mulias/possum_parser_language/blob/main/docs/stdlib.md)
+- [Examples](https://github.com/mulias/possum_parser_language/tree/main/examples)
