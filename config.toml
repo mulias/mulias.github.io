@@ -42,7 +42,7 @@ author = "Elias"
 home_title = "Elias Mulhall"
 
 footer_about = """
-Subscribe vis [RSS](/atom.xml)
+Subscribe via [RSS](/atom.xml)
 """
 
 footer_page = ""
