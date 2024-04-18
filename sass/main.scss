@@ -243,13 +243,13 @@ form.possum-example {
     padding: 0.8em 1em;
     border: 2px solid gray;
     border-radius: 16px;
-    text-overflow: ellipsis;
 
     &:focus {
       z-index: 3;
       outline-color: var(--input-focus-color);
-      outline-width: 2px;
+      outline-width: 3px;
       outline-style: solid;
+      outline-offset: -2px;
     }
 
     &.parser {
@@ -270,8 +270,9 @@ form.possum-example {
     &:focus {
       z-index: 3;
       outline-color: var(--input-focus-color);
-      outline-width: 2px;
+      outline-width: 3px;
       outline-style: solid;
+      outline-offset: -2px;
     }
   }
 

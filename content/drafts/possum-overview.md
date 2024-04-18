@@ -19,7 +19,7 @@ Possum is still in development. Most of the core functionality is in place, but 
 
 A Possum program is made up of parsers, functions that define both what text inputs are valid, and how to transform valid inputs into structured data. The Possum runtime takes a program and an input string and either successfully parses the input into a JSON encoded value, or fails if the input was malformed.
 
-This section covers parsers that expect the input to match specific strings or numbers, and then returns the matched value unchanged. Later on we'll introduce ways to compose these basic parsers together to make compound parsers that can validate more complex inputs and produce any JSON value as output.
+This section covers parsers that match against specific strings or numbers in the input text, and then returns the matched value unchanged. Later on we'll introduce ways to compose these basic parsers together to make compound parsers that can validate more complex inputs and produce any JSON value as output.
 
 ### Literal Parsers
 
@@ -63,7 +63,7 @@ Character ranges are parsers that match a single Unicode code point that falls w
 "a".."z"
 {% end %}
 
-Code points are, broadly speaking, how Unicode defines units of text. This means we can use character range parsers for more than just ASCII characters. The emoji 😄 is code point `U+1F604` and 🤠 is `U+1F920`, so 😅 (`U+1F605`) is in the range. It's worth noting that some symbols are made up of multiple code points stuck together, so character ranges won't work for absolutely everything that looks like a single character. This limitation shouldn't be an issue in the vast majority of parsing use cases.
+Code points are, broadly speaking, how Unicode defines units of text. This means we can use character range parsers for more than just ASCII characters. The emoji 😄 is code point `U+1F604` and 🤠 is `U+1F920`, so 😅 (`U+1F605`) is in the range. It's worth noting that some units of text are made up of multiple code points stuck together, so character ranges won't work for absolutely everything that looks like a single character. This limitation shouldn't be an issue in the vast majority of parsing use cases.
 
 {% possum_example_small(input="😅") %}
 "😄".."🤠"
@@ -71,17 +71,17 @@ Code points are, broadly speaking, how Unicode defines units of text. This means
 
 Integer ranges use the same `..` syntax, but match all integers that fall within an inclusive range.
 
-{% possum_example_small(input="77") %}
+{% possum_example_small(input="78") %}
 1..9
 {% end %}
 
-{% possum_example_small(input="77") %}
+{% possum_example_small(input="78") %}
 70..80
 {% end %}
 
 ### Greed and Failure
 
-Parsers always start matching from the beginning of the input and return the longest possible match.
+Parsers always start matching from the beginning of the input, do not skip over any input, and return the longest possible match.
 
 {% possum_example_small(input="match this: but not this") %}
 "match this: "
@@ -89,13 +89,13 @@ Parsers always start matching from the beginning of the input and return the lon
 
 After parsing, any extra input is thrown out. This means that the empty string `""` is a parser that always succeeds, no matter the input.
 
-{% possum_example_small(input="Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.") %}
+{% possum_example_small(input="Call me Ishmael. Some years ago — never mind how long precisely — having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.") %}
 ""
 {% end %}
 
 If the parser fails to find a match, Possum returns an error.
 
-{% possum_example_small(input="no match here") %}
+{% possum_example_small(input="not my parser") %}
 "my parser"
 {% end %}
 
@@ -142,7 +142,7 @@ The `space` parser matches a single blank non-line-breaking character. This usua
 space
 {% end %}
 
-The `newline` parser matches and returns a single line-breaking character. To parse multiple newlines use `newlines`. These parsers are aliased to the abbreviations `nl` and `nls`, respectively.
+The `newline` parser matches and returns a single line-breaking character. To parse multiple line breaks use `newlines`. These parsers are aliased to the abbreviations `nl` and `nls`, respectively.
 
 {% possum_example_large(input="
 
@@ -234,7 +234,7 @@ The infix "or" operator `p1 | p2` tries to match `p1` and then if that fails tri
 "one" | "two"
 {% end %}
 
-If both parsers fail then the whole parser fails.
+If both parsers fail then the compound parser fails.
 
 {% possum_example_small(input="three") %}
 "one" | "two"
@@ -375,7 +375,7 @@ N <- number $ [N, N, N]
 
 ### Sequence
 
-The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`. This behavior is similar to `>`, but `&` has a more general precedence, grouping parts of a parser together in a similar way to parentheses. Instead of grouping like this:
+The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`. This behavior is similar to `>`, but `&` has a more general precedence, grouping parts of a parser together in a similar way to parentheses. Because of this `>` is best suited for parsing and then ignoring a value within a parsing step, while `&` is more useful in stringing together a list of steps. Instead of grouping like this:
 
 {% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=3) %}
 int > ws > (int | "foo") > ws > (int | "bar")
@@ -389,7 +389,7 @@ int & ws & int | "foo" & ws & int | "bar"
 
 ### Putting it all together
 
-Using the return, destructure, and sequence operators together we can implement a very common pattern in Possum -- matching a sequence of parsers, destructuring to assign values to variables, and then building a return value using the variables.
+Using the return, destructure, and sequence operators together we can implement a very common pattern in Possum — matching a sequence of parsers, destructuring to assign values to variables, and then building a return value using the variables.
 
 {% possum_example_large(input="12 + 99" input_rows=1 parser_rows=6) %}
 Left  <- int   & ws &
@@ -400,7 +400,7 @@ Right <- int   $
 
 ## Defining Parsers
 
-A Possum program must have one *main parser*, and can optionally declare any number of *named parsers*. Parsers must be separated either by newlines or semicolons. Named parsers are declared with the syntax `name = parser`. At runtime Possum finds and executes the main parser, which can reference named parsers declared in the program in the same way we reference named parsers from the standard library.
+A Possum program must have one *main parser*, and can optionally declare any number of *named parsers*. Parsers must be separated either by newlines or semicolons. Named parsers are declared with the syntax `name = parser`. At runtime Possum executes the main parser, which can reference named parsers declared in the program in the same way we reference named parsers from the standard library.
 
 {% possum_example_large(input="first=88 second=0 third=-10" input_rows=1 parser_rows=5) %}
 field = alphas > "=" > int
@@ -484,8 +484,6 @@ We've made it — that's just about everything you need to know to be productive
 "Hello" + ws + alphas + "!"
 {% end %}
 
-Possum aims to make parsing friendly and fun by making it easy to compose complex parsers out of simple component parts. These kinds of parser systems are frequently called [parser combinators](https://en.wikipedia.org/wiki/Parser_combinator). Many modern languages have parser combinator libraries, but they're all implemented slightly differently from one another. Part of what Possum offers is a single set of powerful parsing utilities that can be integrated with almost any other programming language via JSON. On top of that, by focusing solely on parsing, Possum avoids much of the complexity that comes from trying to integrate parser combinators into an existing language.
+Possum aims to make parsing friendly and fun by making it easy to compose complex parsers out of simple component parts. These kinds of parsers are frequently called [parser combinators](https://en.wikipedia.org/wiki/Parser_combinator). Many modern languages have parser combinator libraries, but they're all implemented slightly differently from one another. Part of what Possum offers is a single set of powerful parsing utilities that can effectivly be integrated with any other programming language via JSON. On top of that, Possum avoids much of the complexity that comes from trying to integrate parser combinators into an existing language by focusing solely on parsing.
 
-- [Github Repo](https://github.com/mulias/possum_parser_language/)
-- [Standard Library](https://github.com/mulias/possum_parser_language/blob/main/docs/stdlib.md)
-- [More Examples](https://github.com/mulias/possum_parser_language/tree/main/examples)
+To install Possum check out the [Github repo](https://github.com/mulias/possum_parser_language/). To learn more about using Possum read through the [standard library](https://github.com/mulias/possum_parser_language/blob/main/docs/stdlib.md) or some [larger examples](https://github.com/mulias/possum_parser_language/tree/main/examples). Good luck and happy parsing!
