@@ -115,4 +115,9 @@
 
   </div>
 
+  {% if page.extra.scripts %}
+    {% for script in page.extra.scripts %}
+      <script src="/js/{{ script }}"></script>
+    {% endfor %}
+  {% endif %}
 {% endblock content %}
