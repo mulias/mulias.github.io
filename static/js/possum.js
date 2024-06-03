@@ -16,20 +16,24 @@ const importObject = {
       const text = decoder.decode(
         new Uint8Array(wasm.memory.buffer.slice(ptr, ptr + len))
       );
-      console.log(text);
       err += text;
     },
+    writeDebug: (ptr, len) => {
+      const text = decoder.decode(
+        new Uint8Array(wasm.memory.buffer.slice(ptr, ptr + len))
+      );
+      console.log(`[debug] ${text}`);
+    }
   },
 };
 
 var wasm;
 
-fetch('/js/possum-lib.wasm')
+fetch('/js/possum.wasm')
   .then((response) => response.arrayBuffer())
   .then((bytes) => WebAssembly.instantiate(bytes, importObject))
   .then((result) => {
     wasm = result.instance.exports;
-    console.log(wasm);
   });
 
 function interpret(parser, input) {
@@ -61,11 +65,7 @@ document.querySelectorAll('.possum-example').forEach((form) => {
     const parser = data.get("possumParser");
     const input = data.get("possumInput");
 
-    console.log({parser, input});
-
     interpret(parser, input);
-
-    console.log({out, err});
 
     const labelText = document.createElement("span")
     labelText.classList.add("label-text");
@@ -124,4 +124,3 @@ function allocateString(wasm, str) {
 
   return { ptr, len };
 }
-
