@@ -347,7 +347,7 @@ The value on the right-side of `$` can be any valid JSON data, including arrays,
 
 ### Destructure
 
-The "destructure" operator `p -> P` matches `p`, and then compares the result to the pattern `P` on the left. If the parsed value has the same structure as the pattern then the parser matches and the whole value is returned. The pattern can be any value, including arrays and objects.
+The "destructure" operator `p -> P` matches `p`, and then compares the result to the pattern `P`. If the parsed value has the same structure as the pattern then the parser matches and the whole value is returned. The pattern can be any value, including arrays and objects.
 
 {% possum_example_small(input="5") %}
 int -> 5
