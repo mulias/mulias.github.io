@@ -26,10 +26,7 @@ As a first step we can parse a group of `integer`s which are each separated by a
 array_sep(integer, newline)
 {% end %}
 
-To parse the entire input we want to parse each Elf's inventory and collect them
-all into an array. 
-multiple `newlines`, abbreviated to `nls`. We're also going to abbreviate `integer` to `int`, and
-`newline` to `nl`.
+To parse the entire input we want to parse each Elf's inventory and collect them all into an array. We can do this by wrapping our parser for a single inventory in another `array_sep`, but this time the parser for the separator is multiple `newlines`.
 
 {% possum_example_large(input="1000
 2000
@@ -39,10 +36,25 @@ multiple `newlines`, abbreviated to `nls`. We're also going to abbreviate `integ
 
 5000
 6000" input_rows=8 parser_rows=1) %}
-array_sep(array_sep(int, nl), nls)
+array_sep(array_sep(integer, newline), newlines)
 {% end %}
 
-Arrays of arrays come up frequently enough that there's a parser called `table_sep(p, sep, row_sep)` for this use case. We use the `+` operator to create the parser `nl + nl`, which will parse exactly two newlines.
+Arrays of arrays come up frequently enough that there's a standard library parser called `table_sep(p, sep, row_sep)` for this use case. Intuitively `table_sep` is for tabular data such as rows of comma separated values. While this puzzle input does not visually look like a table it's structurally equivalent, with a `newline` separating each inventory item and `newlines` separating each inventory "row".
+
+{% possum_example_large(input="1000
+2000
+3000
+
+4000
+
+5000
+6000" input_rows=8 parser_rows=1) %}
+table_sep(integer, newline, newlines)
+{% end %}
+
+Possum's standard library includes shortened aliases for a number of the most common parsers. We can abbreviate `integer` to `int`, `newline` to `nl`, and `newlines` to `nls`. Sometimes it's nice to use the longer version to be explicit, but I'd consider the abbreviated aliases to be more idomatic.
+
+Finally, we use the `+` operator to create the parser `nl + nl`, which will parse exactly two newlines. Using this parser in place of `nls` is a bit more specific, since we know that the input format is always going to have two newlines between inventories. This isn't terribly important, but it feels like a nice touch.
 
 {% possum_example_large(input="1000
 2000
@@ -67,7 +79,43 @@ table_sep(int, nl, nl+nl)
 >
 > When comparing two values, the first value is called <strong>left</strong> and the second value is called <strong>right</strong>.
 
-This input looks a lot like [2022 day 1](#advent-of-code-2022-day-1) ! Values are separated by newlines, and groups are separated by two newlines.
+This input looks kind of like [2022 day 1](#advent-of-code-2022-day-1) ! Packets are separated by newlines, and pairs are separated by two newlines. We don't know how parse the indevidual packets, but otherwise this follows the same `table_sep` structure. to The `line` parser matches any text left on the current line,
+
+{% possum_example_large(input="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]" input_rows=8 parser_rows=1) %}
+table_sep(line, nl, nl+nl)
+{% end %}
+
+{% possum_example_large(input="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]" input_rows=8 parser_rows=2) %}
+packet = "[" > array_sep(int | packet, ",") < "]"
+table_sep(packet, nl, nl+nl)
+{% end %}
+
+This looks pretty good, but there's a bug.
+{% possum_example_large(input="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]" input_rows=8 parser_rows=2) %}
+packet = "[" > maybe_array_sep(int | packet, ",") < "]"
+table_sep(packet, nl, nl+nl)
+{% end %}
 
 {% possum_example_large(input="[1,1,3,1,1]
 [1,1,5,1,1]
@@ -78,6 +126,21 @@ This input looks a lot like [2022 day 1](#advent-of-code-2022-day-1) ! Values ar
 [9]
 [[8,7,6]]" input_rows=8 parser_rows=1) %}
 table_sep(json_array, nl, nl+nl)
+{% end %}
+
+{% possum_example_large(input="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]" input_rows=8 parser_rows=6) %}
+pair =
+  json_array -> L & nl & json_array -> R $
+  {"left": L, "right": R}
+
+array_sep(pair, nl+nl)
 {% end %}
 
 {% possum_example_large(input="[1,1,3,1,1]
@@ -100,14 +163,22 @@ array_sep(pair, nl+nl)
 >
 > You play several games and record the information from each game (your puzzle input). Each game is listed with its ID number (like the 11 in Game 11: ...) followed by a semicolon-separated list of subsets of cubes that were revealed from the bag (like 3 red, 5 green, 4 blue).
 
+This puzzle input is pretty dense with information, so we'll have to break it down into a bunch of small steps.
+
+{% possum_example_large(input="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green" input_rows=5 parser_rows=1) %}
+"Game 1: " > int
+{% end %}
+
 {% possum_example_large(input="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
 Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green" input_rows=5 parser_rows=6) %}
-color = "red" | "green" | "blue"
-
-cube_count = int -> Count & space & color -> Color $ {Color: Count}
+cube_count = int -> Count & space & word -> Color $ {Color: Count}
 
 "Game 1: " > cube_count
 {% end %}
@@ -117,9 +188,8 @@ Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
 Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green" input_rows=5 parser_rows=8) %}
-color = "red" | "green" | "blue"
 
-cube_count = int -> Count & space & color -> Color $ {Color: Count}
+cube_count = int -> Count & space & word -> Color $ {Color: Count}
 
 cube_set = many_sep(cube_count, ", ")
 
@@ -131,15 +201,13 @@ Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
 Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green" input_rows=5 parser_rows=10) %}
-color = "red" | "green" | "blue"
-
-cube_count = int -> Count & space & color -> Color $ {Color: Count}
+cube_count = int -> Count & space & word -> Color $ {Color: Count}
 
 cube_set = many_sep(cube_count, ", ")
 
 game_sets = array_sep(cube_set, "; ")
 
-"Game 1: " > game_sets 
+"Game 1: " > game_sets
 {% end %}
 
 {% possum_example_large(input="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
@@ -147,9 +215,7 @@ Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
 Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green" input_rows=5 parser_rows=14) %}
-color = "red" | "green" | "blue"
-
-cube_count = int -> Count & space & color -> Color $ {Color: Count}
+cube_count = int -> Count & space & word -> Color $ {Color: Count}
 
 cube_set = many_sep(cube_count, ", ")
 
@@ -192,9 +258,9 @@ array_sep(game, nl)
 >
 > They do, however, have a drawing of the starting stacks of crates and the rearrangement procedure (your puzzle input).
 
-{% possum_example_large(input="    [D]     [W]    
-[N] [C]     [X]    
-[Z] [M] [P] [A]    
+{% possum_example_large(input="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
  1   2   3   4   5
 
 move 1 from 2 to 1
@@ -208,9 +274,9 @@ cargo = crate | no_crate
 table_sep(cargo, space, nl)
 {% end %}
 
-{% possum_example_large(input="    [D]     [W]    
-[N] [C]     [X]    
-[Z] [M] [P] [A]    
+{% possum_example_large(input="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
  1   2   3   4   5
 
 move 1 from 2 to 1
@@ -226,14 +292,14 @@ step =
   {"count": C, "from": F, "to": T}
 
 table_sep(cargo, space, nl) -> CargoRows & ws &
-array_sep(numeral, ws) & ws &
+line & ws &
 array_sep(step, nl) -> Steps $
 {"cargo": CargoRows, "steps": Steps}
 {% end %}
 
-{% possum_example_large(input="    [D]     [W]    
-[N] [C]     [X]    
-[Z] [M] [P] [A]    
+{% possum_example_large(input="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
  1   2   3   4   5
 
 move 1 from 2 to 1
@@ -258,9 +324,9 @@ array_sep(step, nl) -> Steps $
 {"stacks": Stacks(Labels, CargoRows), "steps": Steps}
 {% end %}
 
-{% possum_example_large(input="    [D]     [W]    
-[N] [C]     [X]    
-[Z] [M] [P] [A]    
+{% possum_example_large(input="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
  1   2   3   4   5
 
 move 1 from 2 to 1
