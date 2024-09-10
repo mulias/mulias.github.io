@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <style>
+      :root {
+        --accent-color: #05a081;
+        --accent-color-light: #82d0c0;
+        --accent-overlay-color: #fff;
+        --body-bg: #fff;
+        --body-color: #000;
+        --heading-color: #000;
+        --table-bg-even: #f3f3f3;
+        --table-border-bottom: #dddddd;
+      }
+      
+    </style>
+
+    <meta name="theme-color" content="#05a081" />
+
+    
+      <link rel="icon" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.97fd810ee92b583a.png" />
+      <link rel="apple-touch-icon" sizes="48x48" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.97fd810ee92b583a.png" />
+      <link rel="apple-touch-icon" sizes="72x72" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.9084ada6c836790e.png" />
+      <link rel="apple-touch-icon" sizes="96x96" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.4b181b94a54fe1e9.png" />
+      <link rel="apple-touch-icon" sizes="144x144" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.06a6332c6a5bc128.png" />
+      <link rel="apple-touch-icon" sizes="192x192" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.1d3ed0786777af28.png" />
+      <link rel="apple-touch-icon" sizes="256x256" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.9fa6cac1c1c79f46.png" />
+      <link rel="apple-touch-icon" sizes="384x384" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.f2dbe9ea63f73134.png" />
+      <link rel="apple-touch-icon" sizes="512x512" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.558128aadaf22d02.png" />
+      
+    
+
+    
+
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary">
+
+    
+
+    
+
+    
+      
+        <meta name="description" content="" />
+        <meta name="twitter:description" content="">
+      
+    
+
+    
+      <meta name="twitter:title" content="Puzzling with Possum: Parsing Inputs for Advent of Code">
+    
+
+    
+      <link rel="prerender" href="&#x2F;" />
+    
+      <link rel="prerender" href="&#x2F;blog&#x2F;" />
+    
+
+    <link rel="prefetch" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.0aa8276b5b132c49.png" />
+
+    <title>
+      
+        
+          Puzzling with Possum: Parsing Inputs for Advent of Code
+        
+      
+    </title>
+
+    
+    
+      <link rel="stylesheet" href="https://mulias.github.io/main.css">
+    
+    
+  
+
+  
+
+  
+    <link rel="prerender" href="https://mulias.github.io/tags/possum/">
+  
+    <link rel="prerender" href="https://mulias.github.io/tags/parsing/">
+  
+    <link rel="prerender" href="https://mulias.github.io/tags/parser-combinators/">
+  
+    <link rel="prerender" href="https://mulias.github.io/tags//">
+  
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://google.com/article"
+      },
+      "headline": "Puzzling with Possum: Parsing Inputs for Advent of Code",
+      "image": [],
+      ,
+      "author": {
+        "@type": "Person",
+        "name": "Elias"
+      },
+       "publisher": {
+        "@type": "Organization",
+        "name": "Elias",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://mulias.github.io/icon.png"
+        }
+        
+      }
+      
+    }
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        
+
+        
+        {
+          
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Elias Mulhall | Home",
+          "item": "https://mulias.github.io/"
+        },
+        
+        {
+          
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Elias Mulhall | Blog Drafts",
+          "item": "https://mulias.github.io/drafts/"
+        },
+        
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Puzzling with Possum: Parsing Inputs for Advent of Code",
+          "item": "https://mulias.github.io/drafts/puzzling-with-possum/"
+        }
+      ]
+    }
+  </script>
+
+  </head>
+  <body>
+    
+      <header>
+        <a class="profile-icon" href="/">
+          <img src="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.0aa8276b5b132c49.png" alt="profile picture">
+        </a>
+        <nav>
+          
+            <a href="&#x2F;">Home</a>
+          
+            <a href="&#x2F;blog&#x2F;">Blog</a>
+          
+        </nav>
+      </header>
+    
+    <main>
+    
+  <div class="post-title">
+    <h1>Puzzling with Possum: Parsing Inputs for Advent of Code</h1>
+  </div>
+
+  <div>
+    <h2 id="advent-of-code-2022-day-1"><a href="https://adventofcode.com/2022/day/1">Advent of Code 2022, Day 1</a></h2>
+<blockquote>
+<p>One important consideration is food - in particular, the number of Calories each Elf is carrying (your puzzle input).</p>
+<p>The Elves take turns writing down the number of Calories contained by the various meals, snacks, rations, etc. that they've brought with them, one item per line. Each Elf separates their own inventory from the previous Elf's inventory (if any) by a blank line.</p>
+</blockquote>
+<p>As a first step we can parse a group of <code>integer</code>s which are each separated by a <code>newline</code>. We use <code>array_sep(p, sep)</code> to collect the integer values into an array. This will only parse the inventory of the first Elf, stopping when we find a second newline instead of an integer on line 4.</p>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="1000
+2000
+3000
+
+4000
+
+5000
+6000"
+    >1000
+2000
+3000
+
+4000
+
+5000
+6000</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="1"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="array_sep(integer, newline)"
+    >array_sep(integer, newline)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<p>To parse the entire input we want to parse each Elf's inventory and collect them all into an array. We can do this by wrapping our parser for a single inventory in another <code>array_sep</code>, but this time the parser for the separator is multiple <code>newlines</code>.</p>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="1000
+2000
+3000
+
+4000
+
+5000
+6000"
+    >1000
+2000
+3000
+
+4000
+
+5000
+6000</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="1"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="array_sep(array_sep(integer, newline), newlines)"
+    >array_sep(array_sep(integer, newline), newlines)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<p>Arrays of arrays come up frequently enough that there's a standard library parser called <code>table_sep(p, sep, row_sep)</code> for this use case. Intuitively <code>table_sep</code> is for tabular data such as rows of comma separated values. While this puzzle input does not visually look like a table it's structurally equivalent, with a <code>newline</code> separating each inventory item and <code>newlines</code> separating each inventory &quot;row&quot;.</p>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="1000
+2000
+3000
+
+4000
+
+5000
+6000"
+    >1000
+2000
+3000
+
+4000
+
+5000
+6000</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="1"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="table_sep(integer, newline, newlines)"
+    >table_sep(integer, newline, newlines)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<p>Possum's standard library includes shortened aliases for a number of the most common parsers. We can abbreviate <code>integer</code> to <code>int</code>, <code>newline</code> to <code>nl</code>, and <code>newlines</code> to <code>nls</code>. Sometimes it's nice to use the longer version to be explicit, but I'd consider the abbreviated aliases to be more idomatic.</p>
+<p>Finally, we use the <code>+</code> operator to create the parser <code>nl + nl</code>, which will parse exactly two newlines. Using this parser in place of <code>nls</code> is a bit more specific, since we know that the input format is always going to have two newlines between inventories. This isn't terribly important, but it feels like a nice touch.</p>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="1000
+2000
+3000
+
+4000
+
+5000
+6000"
+    >1000
+2000
+3000
+
+4000
+
+5000
+6000</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="1"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="table_sep(int, nl, nl+nl)"
+    >table_sep(int, nl, nl+nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<h2 id="advent-of-code-2022-day-13"><a href="https://adventofcode.com/2022/day/13">Advent of Code 2022, Day 13</a></h2>
+<blockquote>
+<p>Your handheld device must still not be working properly; the packets from the distress signal got decoded out of order. You'll need to re-order the list of received packets (your puzzle input) to decode the message.</p>
+<p>Your list consists of pairs of packets; pairs are separated by a blank line.</p>
+<p>...</p>
+<p>Packet data consists of lists and integers. Each list starts with [, ends with ], and contains zero or more comma-separated values (either integers or other lists). Each packet is always a list and appears on its own line.</p>
+<p>When comparing two values, the first value is called <strong>left</strong> and the second value is called <strong>right</strong>.</p>
+</blockquote>
+<p>This input looks kind of like <a href="https://mulias.github.io/drafts/puzzling-with-possum/#advent-of-code-2022-day-1">2022 day 1</a> ! Packets are separated by newlines, and pairs are separated by two newlines. We don't know how parse the indevidual packets, but otherwise this follows the same <code>table_sep</code> structure. to The <code>line</code> parser matches any text left on the current line,</p>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]"
+    >[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="1"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="table_sep(line, nl, nl+nl)"
+    >table_sep(line, nl, nl+nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]"
+    >[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="2"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="packet = &quot;[&quot; &gt; array_sep(int | packet, &quot;,&quot;) &lt; &quot;]&quot;
+table_sep(packet, nl, nl+nl)"
+    >packet = &quot;[&quot; &gt; array_sep(int | packet, &quot;,&quot;) &lt; &quot;]&quot;
+table_sep(packet, nl, nl+nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<p>This looks pretty good, but there's a bug.
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]"
+    >[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="2"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="packet = &quot;[&quot; &gt; maybe_array_sep(int | packet, &quot;,&quot;) &lt; &quot;]&quot;
+table_sep(packet, nl, nl+nl)"
+    >packet = &quot;[&quot; &gt; maybe_array_sep(int | packet, &quot;,&quot;) &lt; &quot;]&quot;
+table_sep(packet, nl, nl+nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+</p>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]"
+    >[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="1"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="table_sep(json_array, nl, nl+nl)"
+    >table_sep(json_array, nl, nl+nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]"
+    >[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="6"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="pair =
+  json_array -&gt; L &amp; nl &amp; json_array -&gt; R $
+  {&quot;left&quot;: L, &quot;right&quot;: R}
+
+array_sep(pair, nl+nl)"
+    >pair =
+  json_array -&gt; L &amp; nl &amp; json_array -&gt; R $
+  {&quot;left&quot;: L, &quot;right&quot;: R}
+
+array_sep(pair, nl+nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]"
+    >[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="3"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="pair = record2_sep(&quot;left&quot;, json_array, nl, &quot;right&quot;, json_array)
+array_sep(pair, nl+nl)"
+    >pair = record2_sep(&quot;left&quot;, json_array, nl, &quot;right&quot;, json_array)
+array_sep(pair, nl+nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<h2 id="advent-of-code-2023-day-2"><a href="https://adventofcode.com/2023/day/2">Advent of Code 2023, Day 2</a></h2>
+<blockquote>
+<p>As you walk, the Elf shows you a small bag and some cubes which are either red, green, or blue. Each time you play this game, he will hide a secret number of cubes of each color in the bag, and your goal is to figure out information about the number of cubes.</p>
+<p>To get information, once a bag has been loaded with cubes, the Elf will reach into the bag, grab a handful of random cubes, show them to you, and then put them back in the bag. He'll do this a few times per game.</p>
+<p>You play several games and record the information from each game (your puzzle input). Each game is listed with its ID number (like the 11 in Game 11: ...) followed by a semicolon-separated list of subsets of cubes that were revealed from the bag (like 3 red, 5 green, 4 blue).</p>
+</blockquote>
+<p>This puzzle input is pretty dense with information, so we'll have to break it down into a bunch of small steps.</p>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="5"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+    >Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="1"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="&quot;Game 1: &quot; &gt; int"
+    >&quot;Game 1: &quot; &gt; int</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="5"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+    >Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="6"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+&quot;Game 1: &quot; &gt; cube_count"
+    >cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+&quot;Game 1: &quot; &gt; cube_count</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="5"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+    >Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="8"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+cube_set = many_sep(cube_count, &quot;, &quot;)
+
+&quot;Game 1: &quot; &gt; cube_set"
+    >cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+cube_set = many_sep(cube_count, &quot;, &quot;)
+
+&quot;Game 1: &quot; &gt; cube_set</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="5"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+    >Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="10"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+cube_set = many_sep(cube_count, &quot;, &quot;)
+
+game_sets = array_sep(cube_set, &quot;; &quot;)
+
+&quot;Game 1: &quot; &gt; game_sets"
+    >cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+cube_set = many_sep(cube_count, &quot;, &quot;)
+
+game_sets = array_sep(cube_set, &quot;; &quot;)
+
+&quot;Game 1: &quot; &gt; game_sets</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="5"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+    >Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="14"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+cube_set = many_sep(cube_count, &quot;, &quot;)
+
+game_sets = array_sep(cube_set, &quot;; &quot;)
+
+game_id = &quot;Game &quot; &gt; int
+
+game = record2_sep(&quot;gameId&quot;, game_id, &quot;: &quot;, &quot;cubeSets&quot;, game_sets)
+
+array_sep(game, nl)"
+    >cube_count = int -&gt; Count &amp; space &amp; word -&gt; Color $ {Color: Count}
+
+cube_set = many_sep(cube_count, &quot;, &quot;)
+
+game_sets = array_sep(cube_set, &quot;; &quot;)
+
+game_id = &quot;Game &quot; &gt; int
+
+game = record2_sep(&quot;gameId&quot;, game_id, &quot;: &quot;, &quot;cubeSets&quot;, game_sets)
+
+array_sep(game, nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="5"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+    >Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="16"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="NoCubes = {&quot;red&quot;: 0, &quot;green&quot;: 0, &quot;blue&quot;: 0}
+
+color = &quot;red&quot; | &quot;green&quot; | &quot;blue&quot;
+
+cube_count = int -&gt; Count &amp; space &amp; color -&gt; Color $ {Color: Count}
+
+cube_set = const(NoCubes()) + many_sep(cube_count, &quot;, &quot;)
+
+game_sets = array_sep(cube_set, &quot;; &quot;)
+
+game_id = &quot;Game &quot; &gt; int
+
+game = record2_sep(&quot;gameId&quot;, game_id, &quot;: &quot;, &quot;cubeSets&quot;, game_sets)
+
+array_sep(game, nl)"
+    >NoCubes = {&quot;red&quot;: 0, &quot;green&quot;: 0, &quot;blue&quot;: 0}
+
+color = &quot;red&quot; | &quot;green&quot; | &quot;blue&quot;
+
+cube_count = int -&gt; Count &amp; space &amp; color -&gt; Color $ {Color: Count}
+
+cube_set = const(NoCubes()) + many_sep(cube_count, &quot;, &quot;)
+
+game_sets = array_sep(cube_set, &quot;; &quot;)
+
+game_id = &quot;Game &quot; &gt; int
+
+game = record2_sep(&quot;gameId&quot;, game_id, &quot;: &quot;, &quot;cubeSets&quot;, game_sets)
+
+array_sep(game, nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<h2 id="advent-of-code-2022-day-5"><a href="https://adventofcode.com/2022/day/5">Advent of Code 2022, Day 5</a></h2>
+<blockquote>
+<p>The ship has a giant cargo crane capable of moving crates between stacks. To ensure none of the crates get crushed or fall over, the crane operator will rearrange them in a series of carefully-planned steps. After the crates are rearranged, the desired crates will be at the top of each stack.</p>
+<p>The Elves don't want to interrupt the crane operator during this delicate procedure, but they forgot to ask her which crate will end up where, and they want to be ready to unload them as soon as possible so they can embark.</p>
+<p>They do, however, have a drawing of the starting stacks of crates and the rearrangement procedure (your puzzle input).</p>
+</blockquote>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="9"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2"
+    >    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="6"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+table_sep(cargo, space, nl)"
+    >crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+table_sep(cargo, space, nl)</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="9"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2"
+    >    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="13"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+step =
+  &quot;move %(number -&gt; C) from %(numeral -&gt; F) to %(numeral -&gt; T)&quot; $
+  {&quot;count&quot;: C, &quot;from&quot;: F, &quot;to&quot;: T}
+
+table_sep(cargo, space, nl) -&gt; CargoRows &amp; ws &amp;
+line &amp; ws &amp;
+array_sep(step, nl) -&gt; Steps $
+{&quot;cargo&quot;: CargoRows, &quot;steps&quot;: Steps}"
+    >crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+step =
+  &quot;move %(number -&gt; C) from %(numeral -&gt; F) to %(numeral -&gt; T)&quot; $
+  {&quot;count&quot;: C, &quot;from&quot;: F, &quot;to&quot;: T}
+
+table_sep(cargo, space, nl) -&gt; CargoRows &amp; ws &amp;
+line &amp; ws &amp;
+array_sep(step, nl) -&gt; Steps $
+{&quot;cargo&quot;: CargoRows, &quot;steps&quot;: Steps}</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="9"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2"
+    >    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="20"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+step =
+  &quot;move %(number -&gt; C) from %(numeral -&gt; F) to %(numeral -&gt; T)&quot; $
+  {&quot;count&quot;: C, &quot;from&quot;: F, &quot;to&quot;: T}
+
+Stacks(Labels, CargoRows) =
+  RotateTableClockwise(CargoRows) -&gt; CargoCols &amp;
+  ZipIntoObject(Labels, CargoCols)
+
+table_sep(cargo, space, nl) -&gt; CargoRows &amp; ws &amp;
+array_sep(numeral, ws) -&gt; Labels &amp; ws &amp;
+array_sep(step, nl) -&gt; Steps $
+{&quot;stacks&quot;: Stacks(Labels, CargoRows), &quot;steps&quot;: Steps}"
+    >crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+step =
+  &quot;move %(number -&gt; C) from %(numeral -&gt; F) to %(numeral -&gt; T)&quot; $
+  {&quot;count&quot;: C, &quot;from&quot;: F, &quot;to&quot;: T}
+
+Stacks(Labels, CargoRows) =
+  RotateTableClockwise(CargoRows) -&gt; CargoCols &amp;
+  ZipIntoObject(Labels, CargoCols)
+
+table_sep(cargo, space, nl) -&gt; CargoRows &amp; ws &amp;
+array_sep(numeral, ws) -&gt; Labels &amp; ws &amp;
+array_sep(step, nl) -&gt; Steps $
+{&quot;stacks&quot;: Stacks(Labels, CargoRows), &quot;steps&quot;: Steps}</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+<form action="" class="possum-example large">
+  <label class="input">
+    <span class="label-text">Input</span>
+    <textarea
+      name="possumInput"
+      class="input"
+      rows="9"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2"
+    >    [D]     [W]
+[N] [C]     [X]
+[Z] [M] [P] [A]
+ 1   2   3   4   5
+
+move 1 from 2 to 1
+move 3 from 1 to 5
+move 2 from 2 to 3
+move 1 from 1 to 2</textarea>
+  </label>
+
+  <label class="parser">
+    <span class="label-text">Parser</span>
+    <textarea
+      name="possumParser"
+      class="parser"
+      rows="20"
+      spellcheck="false"
+      autocapitalize="none"
+      autocomplete="off"
+      data-reset="crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+step =
+  &quot;move %(number -&gt; C) from %(numeral -&gt; F) to %(numeral -&gt; T)&quot; $
+  {&quot;count&quot;: C, &quot;from&quot;: F, &quot;to&quot;: T}
+
+RejectNull(Array) = Reject(Array, IsNull)
+
+Stacks(Labels, CargoRows) =
+  RotateTableClockwise(CargoRows) -&gt; CargoCols &amp;
+  Map(CargoCols, RejectNull) -&gt; CrateCols &amp;
+  ZipIntoObject(Labels, CrateCols)
+
+table_sep(cargo, space, nl) -&gt; CargoRows &amp; ws &amp;
+array_sep(numeral, ws) -&gt; Labels &amp; ws &amp;
+array_sep(step, nl) -&gt; Steps $
+{&quot;stacks&quot;: Stacks(Labels, CargoRows), &quot;steps&quot;: Steps}"
+    >crate = &quot;[&quot; &gt; upper &lt; &quot;]&quot;
+no_crate = &quot;   &quot; $ null
+cargo = crate | no_crate
+
+step =
+  &quot;move %(number -&gt; C) from %(numeral -&gt; F) to %(numeral -&gt; T)&quot; $
+  {&quot;count&quot;: C, &quot;from&quot;: F, &quot;to&quot;: T}
+
+RejectNull(Array) = Reject(Array, IsNull)
+
+Stacks(Labels, CargoRows) =
+  RotateTableClockwise(CargoRows) -&gt; CargoCols &amp;
+  Map(CargoCols, RejectNull) -&gt; CrateCols &amp;
+  ZipIntoObject(Labels, CrateCols)
+
+table_sep(cargo, space, nl) -&gt; CargoRows &amp; ws &amp;
+array_sep(numeral, ws) -&gt; Labels &amp; ws &amp;
+array_sep(step, nl) -&gt; Steps $
+{&quot;stacks&quot;: Stacks(Labels, CargoRows), &quot;steps&quot;: Steps}</textarea>
+    <input type="submit" class="large" value="Run!"/>
+  </label>
+
+  <label class="output"></label>
+</form>
+
+  </div>
+
+  <hr class="footer-rule" />
+
+  
+    <div class="footer-about">
+      <p>Subscribe via <a href="/atom.xml">RSS</a></p>
+
+    </div>
+  
+
+  <div class="related-container">
+
+    
+
+    
+
+  </div>
+
+  
+    
+      <script src="/js/possum.js"></script>
+    
+  
+
+    </main>
+    <footer class="footer-page">
+    
+      
+    
+    </footer>
+  </body>
+</html>
