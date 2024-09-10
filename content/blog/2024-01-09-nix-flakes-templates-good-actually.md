@@ -88,9 +88,9 @@ Initialize a rust template in the current directory:
 
 ```
 $ nix flake init -t github:the-nix-way/dev-templates#rust
-wrote: /home/elias/src/nix-test-too/flake.nix
-wrote: /home/elias/src/nix-test-too/flake.lock
-wrote: /home/elias/src/nix-test-too/.envrc
+wrote: /home/elias/src/my-rust-project/flake.nix
+wrote: /home/elias/src/my-rust-project/flake.lock
+wrote: /home/elias/src/my-rust-project/.envrc
 ```
 
 The generated `flake.nix` defines a baseline development environment for rust projects, while `flake.lock` acts as a package lock file to track when versions change. Bonus points for the `.envrc` file to hook into [direnv](https://direnv.net/) and auto-load the flake when entering the directory!
