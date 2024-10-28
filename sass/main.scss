@@ -25,19 +25,43 @@ ul.posts {
 }
 
 .post-title {
+  h1 {
+    margin-top: 0;
+    margin-bottom: 3rem;
+  }
+
+}
+
+.front-matter {
+  display: flex;
+  margin-bottom: 3rem;
 
   .tags {
     > *:not(:last-child) {
       margin-right: 0.25rem;
     }
   }
+}
 
-  > h1 {
-    margin-bottom: 0.4rem;
-    margin-right: -1rem;
+.banner {
+  width: 100vw;
+  position: relative;
+  left: calc(-50vw + 50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .banner-content {
+    padding-right: 2rem;
+    padding-left: 2rem;
   }
+}
 
-  margin-bottom: 3rem;
+@media (max-width: 600px) {
+  .banner .banner-content {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
 }
 
 .footer-rule {
@@ -103,10 +127,6 @@ table tbody tr:nth-of-type(even) {
 
 table tbody tr:last-of-type {
     border-bottom: 2px solid var(--accent-color);
-}
-
-code {
-  padding: 0 0.2rem;
 }
 
 form.possum-example {

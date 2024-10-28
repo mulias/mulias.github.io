@@ -13,34 +13,36 @@
     <link rel="prerender"  href="{{ get_taxonomy_url(kind="tags", name=tag) }}">
   {% endfor %}
 
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "NewsArticle",
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "https://google.com/article"
-      },
-      "headline": "{{ page.title }}",
-      "image": [],
-      "datePublished": "{{ page.date | date(format="%+") }}",
-      "dateModified": "{{ page.date | date(format="%+") }}"{% if config.extra.author %},
-      "author": {
-        "@type": "Person",
-        "name": "{{ config.extra.author }}"
-      },
-       "publisher": {
-        "@type": "Organization",
-        "name": "{{ config.extra.author }}"{% if config.extra.icon %},
-        "logo": {
-          "@type": "ImageObject",
-          "url": "{{ get_url(path=config.extra.icon) | safe }}"
+  {% if page.date %}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://google.com/article"
+        },
+        "headline": "{{ page.title }}",
+        "image": [],
+        "datePublished": "{{ page.date | date(format="%+") }}",
+        "dateModified": "{{ page.date | date(format="%+") }}"{% if config.extra.author %},
+        "author": {
+          "@type": "Person",
+          "name": "{{ config.extra.author }}"
+        },
+         "publisher": {
+          "@type": "Organization",
+          "name": "{{ config.extra.author }}"{% if config.extra.icon %},
+          "logo": {
+            "@type": "ImageObject",
+            "url": "{{ get_url(path=config.extra.icon) | safe }}"
+          }
+          {% endif %}
         }
         {% endif %}
       }
-      {% endif %}
-    }
-  </script>
+    </script>
+  {% endif %}
 
   <script type="application/ld+json">
     {
@@ -70,12 +72,21 @@
 {% endblock %}
 
 {% block content %}
-  <div class="post-title">
-    <h1>{{ page.title }}</h1>
+  <div class="post-title banner">
+    <div class="banner-content">
+      <h1>{{ page.title }}</h1>
+    </div>
+  </div>
+
+  <div class="front-matter">
     <small>
-      {{ page.date | date(format="%B %d, %Y") }}
+      {% if page.date %}
+        {{ page.date | date(format="%B %d, %Y") }}
+      {% else %}
+        Draft
+      {% endif %}
+      -
       {% if page.taxonomies.tags %}
-        - 
         <span class="tags">
           {% for tag in page.taxonomies.tags %}
             <a href="{{ get_taxonomy_url(kind="tags", name=tag) }}">{{ tag }}</a>
