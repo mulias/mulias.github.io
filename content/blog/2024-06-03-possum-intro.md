@@ -31,7 +31,7 @@ Here's our first interactive example! Typically Possum is run from the command l
 "Hello World!"
 {% end %}
 
-String literals can use double or single quotes. JSON strings are encoded with double quotes, so the program output will always use double quotes.
+String literals can use double or single quotes. JSON strings are encoded with double quotes, so the output will always use double quotes.
 
 {% possum_example_small(input='Time to "parse some text"') %}
 'Time to "parse some text"'
@@ -219,7 +219,7 @@ array_sep(int, ' ')
 {% end %}
 
 {% possum_example_large(input="foo=33;bar=1" input_rows=1 parser_rows=3) %}
-object_sep(many(alpha), "=", int, ";")
+object_sep(alphas, "=", int, ";")
 {% end %}
 
 ## Composing Parsers
@@ -289,7 +289,7 @@ Concatenate arrays:
 array(digit) + array(alpha)
 {% end %}
 
-Combine objects, adding fields from the right-side object to the left-side object, possibly replacing existing values:
+Combine objects, overwriting existing values:
 
 {% possum_example_small(input="a0b0c0c1a1d1") %}
 object(char, 0) + object(char, 1)
@@ -408,12 +408,20 @@ field = alphas > "=" > int
 array_sep(field, ws)
 {% end %}
 
-Named Parsers can be parameterized with both parsers and values. Note that parser params are always `snake_case` while value params are always `UpperCamelCase`.
+Named Parsers can be parameterized with both parsers and values. Parser params are always `snake_case` while value params are always `UpperCamelCase`.
 
 {% possum_example_large(input="12345" input_rows=1 parser_rows=5) %}
 if(condition, Then) = condition $ Then
 
-if(12345, "Password Accepted")
+if(12345, ["return", "this", "array"])
+{% end %}
+
+There's one edge case when passing values as parser args, which is that values which could be confused with parsers must be prefixed with a `$`. This includes strings, numbers, and the constants `true`, `false`, and `null`. Arrays, objects, and `UpperCamelCase` variables are always values, so there's no need to disambiguate.
+
+{% possum_example_large(input="12345" input_rows=1 parser_rows=5) %}
+if(condition, Then) = condition $ Then
+
+if(12345, $"return this string")
 {% end %}
 
 Named parsers can be recursive and referenced before they are declared. The main parser can come before, after, or in between named parser declarations.
