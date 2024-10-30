@@ -271,7 +271,7 @@ The object literal syntax used in `pair` is very flexible, but it can be verbose
 [9]
 [[8,7,[6]]]" input_rows=8 parser_rows=3) %}
 packet = json_array(int | packet)
-pair = record2_sep("left", packet, nl, "right", packet)
+pair = record2_sep($"left", packet, nl, $"right", packet)
 array_sep(pair, nl+nl)
 {% end %}
 
