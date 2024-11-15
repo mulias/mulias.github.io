@@ -470,10 +470,10 @@ Alternatively, `input(p)` wraps a parser to both strip surrounding whitespace an
 input(int)
 {% end %}
 
-Use `scan(p)` to skip characters until the provided parser matches.
+Use `find(p)` to skip characters until the provided parser matches.
 
 {% possum_example_small(input="___test___83324____99") %}
-scan(number)
+find(number)
 {% end %}
 
 Similar to how `array_sep(elem, sep)` handles one-dimensional data with separators, `table_sep(array, sep, row_sep)` handles two dimensional data with both column and row separators.
