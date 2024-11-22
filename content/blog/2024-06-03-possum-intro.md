@@ -17,9 +17,9 @@ Possum is still in development. Most of the core functionality is in place, but 
 
 ## The Basics
 
-A Possum program is made up of parsers, functions that define both what text inputs are valid and how to transform valid inputs into structured data. The Possum runtime takes a program and an input string and either successfully parses the input into a JSON encoded value, or fails if the input was malformed.
+A Possum program consists of parsers, functions that both validate text inputs and transform them into structured data. The Possum runtime takes a program and an input string and either successfully parses the input into a JSON encoded value, or fails if the input was malformed.
 
-This section covers parsers that match against specific strings or numbers in the input text, and then returns the matched value unchanged. Later on we'll introduce ways to compose these basic parsers together to make compound parsers that can validate more complex inputs and produce any JSON value as output.
+This section covers parsers that match specific strings or numbers in the input text and return the matched value unchanged. Later on we'll introduce ways to compose these basic parsers together to make compound parsers that can validate more complex inputs and produce any JSON value as output.
 
 ### Literal Parsers
 
@@ -101,7 +101,7 @@ If the parser fails to find a match, Possum returns an error.
 
 ## The Standard Library
 
-Possum has a standard library with parsers covering many common parsing situations. We'll be using parsers from the standard library in our examples, so here's a quick overview.
+Possum has a standard library with parsers covering many common parsing situations. Here's a quick overview of some standard library parsers we'll be using in our examples.
 
 ### Parsing Strings
 
@@ -212,7 +212,7 @@ array(digit)
 object(alpha, int)
 {% end %}
 
-Collections frequently use separator characters between elements. You can use `array_sep(elem, sep)` and `object_sep(key, pair_sep, value, sep)` to handle these cases, parsing the separators but excluding them from the result.
+Collections often have separator characters between elements. You can use `array_sep(elem, sep)` and `object_sep(key, pair_sep, value, sep)` to handle these cases, parsing the separators but excluding them from the result.
 
 {% possum_example_small(input="1 2 3 4 5 6") %}
 array_sep(int, ' ')
@@ -224,7 +224,9 @@ object_sep(alphas, "=", int, ";")
 
 ## Composing Parsers
 
-We've now covered both basic parsers for strings and numbers, and some of the high-level parser functions from Possum's standard library. The last big feature we need is the ability to stick parsers together in order to create larger parsers for more complex inputs. In Possum we do this with *infix operators*, symbols that go between two parsers to change how and when the parsers get ran on the input.
+We've now covered both basic parsers for strings and numbers, and some of the high-level parser functions from Possum's standard library.
+
+The last major feature we need is the ability to combine parsers to handle more complex inputs. In Possum we do this with *infix operators*, symbols that go between two parsers to control how and when the parsers run.
 
 ### Or
 
@@ -363,7 +365,7 @@ If the parsed value does not match the pattern then the parser fails.
 int -> 5
 {% end %}
 
-Patterns can also contain `UpperCamelCase` variables, which match any value and assign the value to the variable. Variables can be used later in the same parser.
+Patterns can also include `UpperCamelCase` variables which match and capture any value. Variables can be used later in the same parser.
 
 {% possum_example_small(input="9") %}
 number -> N $ [N, N, N]
@@ -381,7 +383,7 @@ The "sequence" operator `p1 & p2` matches `p1` and then matches and returns `p2`
 int > ws > (int | "foo") > ws > (int | "bar")
 {% end %}
 
-A sequence of parsers can be written like this:
+The same parser can be written more clearly as a sequence:
 
 {% possum_example_large(input="1 foo 3" input_rows=1 parser_rows=3) %}
 int & ws & int | "foo" & ws & int | "bar"
@@ -416,7 +418,7 @@ if(condition, Then) = condition $ Then
 if(12345, ["return", "this", "array"])
 {% end %}
 
-There's one edge case when passing values as parser args, which is that values which could be confused with parsers must be prefixed with a `$`. This includes strings, numbers, and the constants `true`, `false`, and `null`. Arrays, objects, and `UpperCamelCase` variables are always values, so there's no need to disambiguate.
+When passing values as parser arguments, any value that could be confused with a parser must be prefixed with `$`. This includes strings, numbers, and the constants `true`, `false`, and `null`. Arrays, objects, and `UpperCamelCase` variables are always values, so there's no need to disambiguate.
 
 {% possum_example_large(input="12345" input_rows=1 parser_rows=5) %}
 if(condition, Then) = condition $ Then
@@ -476,7 +478,7 @@ Use `find(p)` to skip characters until the provided parser matches.
 find(number)
 {% end %}
 
-Similar to how `array_sep(elem, sep)` handles one-dimensional data with separators, `table_sep(array, sep, row_sep)` handles two dimensional data with both column and row separators.
+While `array_sep(elem, sep)` handles one-dimensional data with separators, `table_sep(array, sep, row_sep)` handles two-dimensional data with both column and row separators.
 
 {% possum_example_large(input="1 2 3 4 5
 0 1 2 3 4
@@ -492,6 +494,6 @@ We've made it — that's just about everything you need to know to be productive
 "Hello" + ws + word + "!"
 {% end %}
 
-Possum aims to make parsing friendly and fun by making it easy to compose complex parsers out of simple component parts. These kinds of parsers are frequently called [parser combinators](https://en.wikipedia.org/wiki/Parser_combinator). Many modern languages have parser combinator libraries, but they're all implemented slightly differently from one another. Part of what Possum offers is a single set of powerful parsing utilities that can effectivly be integrated with any other programming language via JSON. On top of that, Possum avoids much of the complexity that comes from trying to integrate parser combinators into an existing language by focusing solely on parsing.
+Possum aims to make parsing friendly and fun by letting you compose complex parsers from simple building blocks. These kinds of parsers are frequently called [parser combinators](https://en.wikipedia.org/wiki/Parser_combinator). Many modern languages have parser combinator libraries, but they're all implemented slightly differently from one another. Possum provides a consistent set of parsing utilities that integrate with any programming language through JSON. On top of that, Possum avoids much of the complexity that comes from trying to integrate parser combinators into an existing language by focusing solely on parsing.
 
 To install Possum check out the [Github repo](https://github.com/mulias/possum_parser_language/). To learn more about using Possum read through the [standard library](https://github.com/mulias/possum_parser_language/blob/main/docs/stdlib.md) or some [larger examples](https://github.com/mulias/possum_parser_language/tree/main/examples). Good luck and happy parsing!
