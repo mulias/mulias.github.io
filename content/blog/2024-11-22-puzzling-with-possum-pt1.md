@@ -327,7 +327,7 @@ $ possum input_parser.possum input.txt > input.json
 
 I've written over 1,500 words to explain four lines of code, a new personal record! These examples cover two common input formats for Advent of Code, and should be adaptable to some of the upcoming 2024 puzzles. Whatever wild adventures those Elves get up to next, you'll be ready to parse them.
 
-This is [part 1](/blog/puzzling_with_possum_pt1) of a three part series, covering the basics of parsing arrays, objects, and recursive data with Possum.
+This is [part 1](/blog/puzzling-with-possum-pt1) of a three part series, covering the basics of parsing arrays, objects, and recursive data with Possum.
 
 In part 2 we'll look at how Possum can handle more complex inputs, including objects with dynamic keys and ASCII diagrams.
 
