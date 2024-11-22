@@ -1,0 +1,3503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>Elias Mulhall</title>
+    <link rel="self" type="application/atom+xml" href="https://mulias.github.io/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://mulias.github.io/"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-11-22T00:00:00+00:00</updated>
+    <id>https://mulias.github.io/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Puzzling with Possum: Parsing Inputs for Advent of Code (Part 1)</title>
+        <published>2024-11-22T00:00:00+00:00</published>
+        <updated>2024-11-22T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://mulias.github.io/blog/puzzling-with-possum-pt1/"/>
+        <id>https://mulias.github.io/blog/puzzling-with-possum-pt1/</id>
+        
+        <content type="html" xml:base="https://mulias.github.io/blog/puzzling-with-possum-pt1/">&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mulias&#x2F;possum_parser_language&quot;&gt;Possum&lt;&#x2F;a&gt; is a parsing tool designed to transform any kind of text into structured data. While it&#x27;s general-purpose, one use case where it naturally fits is parsing inputs for &lt;a href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;&quot;&gt;Advent of Code&lt;&#x2F;a&gt; puzzles. Possum helps you focus on solving puzzles by making the parsing step quick and painless.&lt;&#x2F;p&gt;
+&lt;p&gt;Also parsing is fun. I don&#x27;t want to over-sell the practical value of this exercise. I&#x27;ve got some convenient examples and I&#x27;m going to use them to show off a thing I made. Maybe you&#x27;ll learn something, but more importantly I hope to nourish your soul, bring structural order to textual chaos, and keep my corner of the programming world a little bit weird. A simple ambition.&lt;&#x2F;p&gt;
+&lt;p&gt;If you&#x27;re new to Possum I&#x27;d recommend first reading an &lt;a href=&quot;&#x2F;blog&#x2F;possum-intro&quot;&gt;introduction&lt;&#x2F;a&gt;, although you can probably follow along if you&#x27;re familiar with parsing and can vibe with some unusual syntax.&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;warning-work-in-progress-warning&quot;&gt;⚠️ Work In Progress ⚠️&lt;&#x2F;h4&gt;
+&lt;p&gt;Possum is still in development. Most of the core functionality is in place, but there are a number of rough edges. The examples in this blog post will guide you along a happy path, but be aware that error messages may not provide much guidance if things go wrong.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;advent-of-code-2022-day-1&quot;&gt;&lt;a href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;2022&#x2F;day&#x2F;1&quot;&gt;Advent of Code 2022, Day 1&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;One important consideration is food - in particular, the number of Calories each Elf is carrying (your puzzle input).&lt;&#x2F;p&gt;
+&lt;p&gt;The Elves take turns writing down the number of Calories contained by the various meals, snacks, rations, etc. that they&#x27;ve brought with them, one item per line. Each Elf separates their own inventory from the previous Elf&#x27;s inventory (if any) by a blank line.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Here&#x27;s a sample input which lists the inventory of three elves. It&#x27;s representative of the full puzzle input but much shorter - the full input for this puzzle is over 2,000 lines long.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;5642
+&lt;&#x2F;span&gt;&lt;span&gt;6401
+&lt;&#x2F;span&gt;&lt;span&gt;5591
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;6603
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;4481
+&lt;&#x2F;span&gt;&lt;span&gt;5189
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;A good way to start writing a parser is to focus on the first bit of meaningful data at the beginning of the input. In this case the very first thing on the first line is an &lt;code&gt;integer&lt;&#x2F;code&gt;, so that&#x27;s what we&#x27;ll parse.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;5642
+6401
+5591
+
+6603
+
+4481
+5189&quot;
+    &gt;5642
+6401
+5591
+
+6603
+
+4481
+5189&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;integer&quot;
+    &gt;integer&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;From here we can build up a parser for a single Elf&#x27;s complete inventory. We can use &lt;code&gt;array_sep(elem, sep)&lt;&#x2F;code&gt; to collect multiple values into an array, where each &lt;code&gt;elem&lt;&#x2F;code&gt; is an &lt;code&gt;integer&lt;&#x2F;code&gt; and &lt;code&gt;sep&lt;&#x2F;code&gt; is a &lt;code&gt;newline&lt;&#x2F;code&gt;. This parser will match all integers separated by newlines until it hits something unexpected, like the double newline on line 4 that separates inventories. This means we only parse the first Elf&#x27;s inventory of three items, stopping before we get to the second Elf.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;5642
+6401
+5591
+
+6603
+
+4481
+5189&quot;
+    &gt;5642
+6401
+5591
+
+6603
+
+4481
+5189&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;array_sep(integer, newline)&quot;
+    &gt;array_sep(integer, newline)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;To parse the entire input we want to parse each Elf&#x27;s inventory and collect them all into an array. We can do this by wrapping our parser for a single inventory in another &lt;code&gt;array_sep&lt;&#x2F;code&gt;, but this time the parser for the separator is multiple &lt;code&gt;newlines&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;5642
+6401
+5591
+
+6603
+
+4481
+5189&quot;
+    &gt;5642
+6401
+5591
+
+6603
+
+4481
+5189&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;4&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;array_sep(
+  array_sep(integer, newline),
+  newlines
+)&quot;
+    &gt;array_sep(
+  array_sep(integer, newline),
+  newlines
+)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;This is a working solution! We can stop here, parse our puzzle input into JSON, and move on to the actual puzzle solving part of Advent of Code. However, there are a few more optional ways we can clean up our code.&lt;&#x2F;p&gt;
+&lt;p&gt;Looking at our current solution, we have an &lt;code&gt;array_sep&lt;&#x2F;code&gt; nested inside another &lt;code&gt;array_sep&lt;&#x2F;code&gt;. This pattern of parsing arrays of arrays is common enough that Possum&#x27;s standard library includes a two dimensional array parser called &lt;code&gt;table_sep(elem, sep, row_sep)&lt;&#x2F;code&gt;. This parser handles our input data like a spreadsheet, where each Elf&#x27;s items are column cells and each inventory is a row.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;5642
+6401
+5591
+
+6603
+
+4481
+5189&quot;
+    &gt;5642
+6401
+5591
+
+6603
+
+4481
+5189&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;table_sep(integer, newline, newlines)&quot;
+    &gt;table_sep(integer, newline, newlines)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Possum&#x27;s standard library also includes shortened aliases for a number of the most common parsers. We can abbreviate &lt;code&gt;integer&lt;&#x2F;code&gt; to &lt;code&gt;int&lt;&#x2F;code&gt;, &lt;code&gt;newline&lt;&#x2F;code&gt; to &lt;code&gt;nl&lt;&#x2F;code&gt;, and &lt;code&gt;newlines&lt;&#x2F;code&gt; to &lt;code&gt;nls&lt;&#x2F;code&gt;. Sometimes it&#x27;s nice to use the longer version to be explicit, but I&#x27;d consider the abbreviated aliases to be idiomatic.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;5642
+6401
+5591
+
+6603
+
+4481
+5189&quot;
+    &gt;5642
+6401
+5591
+
+6603
+
+4481
+5189&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;table_sep(int, nl, nls)&quot;
+    &gt;table_sep(int, nl, nls)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Finally, we can use the &lt;code&gt;+&lt;&#x2F;code&gt; operator to create the parser &lt;code&gt;nl + nl&lt;&#x2F;code&gt;, which will parse exactly two newlines. We could alternatively use the string literal parser &lt;code&gt;&amp;quot;\n\n&amp;quot;&lt;&#x2F;code&gt;, since &lt;code&gt;\n&lt;&#x2F;code&gt; is the escape sequence for a newline. Using either of these parsers in place of &lt;code&gt;nls&lt;&#x2F;code&gt; is a bit more specific, since we know that the input format is always going to have two newlines between inventories.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;5642
+6401
+5591
+
+6603
+
+4481
+5189&quot;
+    &gt;5642
+6401
+5591
+
+6603
+
+4481
+5189&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;table_sep(int, nl, nl+nl)&quot;
+    &gt;table_sep(int, nl, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;While relatively simple, this example highlights two key aspects of Possum: incremental parser creation and the standard library&#x27;s high-level parsers. We started with a basic integer parser and gradually built up to handling the full input, showing how parsers can be composed step by step. Along the way, we used standard library utilities like &lt;code&gt;table_sep&lt;&#x2F;code&gt; that encapsulate common parsing patterns, and saw how aliases and operators help keep code concise without sacrificing readability.&lt;&#x2F;p&gt;
+&lt;p&gt;To run this parser on our full 2,000-line input file we&#x27;re going to want to run Possum locally with the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mulias&#x2F;possum_parser_language&#x2F;releases&quot;&gt;CLI tool&lt;&#x2F;a&gt;. Here&#x27;s how we can run our parser, reading the puzzle input from &lt;code&gt;input.txt&lt;&#x2F;code&gt; and redirecting the output from &lt;code&gt;stdout&lt;&#x2F;code&gt; to &lt;code&gt;input.json&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ possum -p &amp;#39;table_sep(int, nl, nl+nl)&amp;#39; input.txt &amp;gt; input.json
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;advent-of-code-2022-day-13&quot;&gt;&lt;a href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;2022&#x2F;day&#x2F;13&quot;&gt;Advent of Code 2022, Day 13&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Your handheld device must still not be working properly; the packets from the distress signal got decoded out of order. You&#x27;ll need to re-order the list of received packets (your puzzle input) to decode the message.&lt;&#x2F;p&gt;
+&lt;p&gt;Your list consists of pairs of packets; pairs are separated by a blank line.&lt;&#x2F;p&gt;
+&lt;p&gt;[...]&lt;&#x2F;p&gt;
+&lt;p&gt;Packet data consists of lists and integers. Each list starts with [, ends with ], and contains zero or more comma-separated values (either integers or other lists). Each packet is always a list and appears on its own line.&lt;&#x2F;p&gt;
+&lt;p&gt;When comparing two values, the first value is called &lt;strong&gt;left&lt;&#x2F;strong&gt; and the second value is called &lt;strong&gt;right&lt;&#x2F;strong&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;For this puzzle we&#x27;ll use a sample input listing three pairs of packets. The full input for this puzzle is over 400 lines long and many of the packets are significantly longer and more nested.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;[1,1,3,1,1]
+&lt;&#x2F;span&gt;&lt;span&gt;[1,1,5,1,1]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;[[1],[2,3,4]]
+&lt;&#x2F;span&gt;&lt;span&gt;[[1],4]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;[9]
+&lt;&#x2F;span&gt;&lt;span&gt;[[8,7,[6]]]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Once again we can start by focusing on the first bit of data on the first line. In order to parse the first integer we need to skip over the square bracket, accomplished using &lt;code&gt;&amp;gt;&lt;&#x2F;code&gt;, the &amp;quot;take right&amp;quot; operator.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;&amp;quot;[&amp;quot; &amp;gt; int&quot;
+    &gt;&amp;quot;[&amp;quot; &amp;gt; int&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Next we can build up to parsing the full first line, returning the packet as an array. We want to match the start and end square brackets, but not include them in the output. We can use both the &lt;code&gt;&amp;gt;&lt;&#x2F;code&gt; and &lt;code&gt;&amp;lt;&lt;&#x2F;code&gt; operators to keep only the right or left parser&#x27;s result, respectively, so parsing and returning the stuff in the middle will look something like &lt;code&gt;&amp;quot;[&amp;quot; &amp;gt; packet_values &amp;lt; &amp;quot;]&amp;quot;&lt;&#x2F;code&gt;. The packet values are &lt;code&gt;int&lt;&#x2F;code&gt;s separated by commas so this seems like another good place for &lt;code&gt;array_sep&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;&amp;quot;[&amp;quot; &amp;gt; array_sep(int, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;&quot;
+    &gt;&amp;quot;[&amp;quot; &amp;gt; array_sep(int, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Now that we have a parser for the first packet, we can try parsing the full input with &lt;code&gt;table_sep&lt;&#x2F;code&gt;, similar to the final parser solution for &lt;a href=&quot;https:&#x2F;&#x2F;mulias.github.io&#x2F;blog&#x2F;puzzling-with-possum-pt1&#x2F;#advent-of-code-2022-day-1&quot;&gt;2022 day 1&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Mid-article pop quiz: Why won&#x27;t the following parser work for parsing the whole input?&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;5&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;table_sep(
+  &amp;quot;[&amp;quot; &amp;gt; array_sep(int, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;,
+  nl,
+  nl+nl
+)&quot;
+    &gt;table_sep(
+  &amp;quot;[&amp;quot; &amp;gt; array_sep(int, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;,
+  nl,
+  nl+nl
+)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The parser can successfully parse the first pair of packets, but we haven&#x27;t accounted for the nested packet on line 4. Each packet can contain other packets, but the parser fails when it finds a nested square bracket instead of an integer.&lt;&#x2F;p&gt;
+&lt;p&gt;To parse nested packets we split out &lt;code&gt;packet = ...&lt;&#x2F;code&gt; as a named parser and then use &lt;code&gt;packet&lt;&#x2F;code&gt; recursively in its own definition. There&#x27;s no other special syntax or trick to make this work - a packet can contain other packets, and that&#x27;s ok!&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;packet = &amp;quot;[&amp;quot; &amp;gt; array_sep(int | packet, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;
+table_sep(packet, nl, nl+nl)&quot;
+    &gt;packet = &amp;quot;[&amp;quot; &amp;gt; array_sep(int | packet, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;
+table_sep(packet, nl, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;This looks promising, but there’s one more bug. In the following example the input has been modified so that the second packet is empty. Our parser will still run, but it will give up when it reaches the empty packet.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;packet = &amp;quot;[&amp;quot; &amp;gt; array_sep(int | packet, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;
+table_sep(packet, nl, nl+nl)&quot;
+    &gt;packet = &amp;quot;[&amp;quot; &amp;gt; array_sep(int | packet, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;
+table_sep(packet, nl, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The &lt;code&gt;array_sep&lt;&#x2F;code&gt; parser only succeeds when there&#x27;s at least one element, producing a non-empty array. Only parsing non-empty arrays is a safer default because it avoids infinite loops that could occur when a parser succeeds without consuming any input. However, we can explicitly opt-in to allowing an empty array by using &lt;code&gt;maybe_array_sep(elem, sep)&lt;&#x2F;code&gt; which will parse zero or more elements, returning an empty array if no elements are found.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;packet = &amp;quot;[&amp;quot; &amp;gt; maybe_array_sep(int | packet, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;
+table_sep(packet, nl, nl+nl)&quot;
+    &gt;packet = &amp;quot;[&amp;quot; &amp;gt; maybe_array_sep(int | packet, &amp;quot;,&amp;quot;) &amp;lt; &amp;quot;]&amp;quot;
+table_sep(packet, nl, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;At this point we&#x27;ve successfully parsed the full input, but there&#x27;s more we can do to improve our parser.&lt;&#x2F;p&gt;
+&lt;p&gt;Looking at our input more carefully, we can note that each packet is already formatted as valid JSON arrays and integers. Possum has a built-in &lt;code&gt;json&lt;&#x2F;code&gt; parser which handles arbitrary JSON formatted data, so we can use that as a drop-in replacement for our &lt;code&gt;packet&lt;&#x2F;code&gt; definition.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;packet = json
+table_sep(packet, nl, nl+nl)&quot;
+    &gt;packet = json
+table_sep(packet, nl, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Since the &lt;code&gt;json&lt;&#x2F;code&gt; parser accepts any valid JSON data (including strings, numbers, objects etc.), it&#x27;s overly permissive for our needs. The &lt;code&gt;json_array(elem)&lt;&#x2F;code&gt; parser is a more precise choice as it only accepts arrays and gives us control over what elements are allowed through the &lt;code&gt;elem&lt;&#x2F;code&gt; parameter. This restriction helps catch unexpected inputs early and makes our parser&#x27;s intent clearer - we expect packets to be arrays containing only integers and other packets.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;packet = json_array(int | packet)
+table_sep(packet, nl, nl+nl)&quot;
+    &gt;packet = json_array(int | packet)
+table_sep(packet, nl, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The description specifies that packets come in pairs, calling out the first value as &amp;quot;left&amp;quot; and the second value as &amp;quot;right&amp;quot;. We can better match this conceptual model by parsing each packet &lt;code&gt;pair&lt;&#x2F;code&gt; as an object with &amp;quot;left&amp;quot; and &amp;quot;right&amp;quot; fields.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;7&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;packet = json_array(int | packet)
+pair =
+  packet -&amp;gt; L &amp;amp; nl &amp;amp; packet -&amp;gt; R $
+  {&amp;quot;left&amp;quot;: L, &amp;quot;right&amp;quot;: R}
+
+array_sep(pair, nl+nl)&quot;
+    &gt;packet = json_array(int | packet)
+pair =
+  packet -&amp;gt; L &amp;amp; nl &amp;amp; packet -&amp;gt; R $
+  {&amp;quot;left&amp;quot;: L, &amp;quot;right&amp;quot;: R}
+
+array_sep(pair, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The object literal syntax used in &lt;code&gt;pair&lt;&#x2F;code&gt; is very flexible, but it can be verbose. We can instead use the standard library parser &lt;code&gt;record2_sep(Key1, value1, sep, Key2, value2)&lt;&#x2F;code&gt;, which parses two values, &lt;code&gt;value1&lt;&#x2F;code&gt; and &lt;code&gt;value2&lt;&#x2F;code&gt;, separated by &lt;code&gt;sep&lt;&#x2F;code&gt;. The parsed values are turned into an object with value keys &lt;code&gt;Key1&lt;&#x2F;code&gt; and &lt;code&gt;Key2&lt;&#x2F;code&gt;. Note the special syntax &lt;code&gt;$&amp;quot;left&amp;quot;&lt;&#x2F;code&gt; and &lt;code&gt;$&amp;quot;right&amp;quot;&lt;&#x2F;code&gt; to specify the key names. Possum usually understands string literals as parsers that match the exact contents of a string. Prefixing the string with a dollar sign marks it as a concrete string value, instead of a parser.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;8&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&quot;
+    &gt;[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,[6]]]&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;4&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;packet = json_array(int | packet)
+pair = record2_sep($&amp;quot;left&amp;quot;, packet, nl, $&amp;quot;right&amp;quot;, packet)
+array_sep(pair, nl+nl)&quot;
+    &gt;packet = json_array(int | packet)
+pair = record2_sep($&amp;quot;left&amp;quot;, packet, nl, $&amp;quot;right&amp;quot;, packet)
+array_sep(pair, nl+nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;In this second example we&#x27;ve seen how Possum can handle recursive data structures. We started with a bespoke definition for &lt;code&gt;packet&lt;&#x2F;code&gt;, then moved to using a standard library parser for data formatted as a JSON array, which happens to match our use case. We also structured our output as nested arrays and then refactored to return objects with field names in order to better match the puzzle description.&lt;&#x2F;p&gt;
+&lt;p&gt;Running the final version of our parser is similar to the previous example:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ possum -p &amp;#39;
+&lt;&#x2F;span&gt;&lt;span&gt;  packet = json_array(int | packet)
+&lt;&#x2F;span&gt;&lt;span&gt;  pair = record2_sep($&amp;quot;left&amp;quot;, packet, nl, $&amp;quot;right&amp;quot;, packet)
+&lt;&#x2F;span&gt;&lt;span&gt;  array_sep(pair, nl+nl)
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;#39; input.txt &amp;gt; input.json
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Alternatively we can save the parser to a &lt;code&gt;.possum&lt;&#x2F;code&gt; file which is then read as a positional argument:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ possum input_parser.possum input.txt &amp;gt; input.json
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;&#x2F;h2&gt;
+&lt;p&gt;I&#x27;ve written over 1,500 words to explain four lines of code, a new personal record! These examples cover two common input formats for Advent of Code, and should be adaptable to some of the upcoming 2024 puzzles. Whatever wild adventures those Elves get up to next, you&#x27;ll be ready to parse them.&lt;&#x2F;p&gt;
+&lt;p&gt;This is &lt;a href=&quot;&#x2F;blog&#x2F;puzzling-with-possum-pt1&quot;&gt;part 1&lt;&#x2F;a&gt; of a three part series, covering the basics of parsing arrays, objects, and recursive data with Possum.&lt;&#x2F;p&gt;
+&lt;p&gt;In part 2 we&#x27;ll look at how Possum can handle more complex inputs, including objects with dynamic keys and ASCII diagrams.&lt;&#x2F;p&gt;
+&lt;p&gt;Finally in part 3 we&#x27;ll work through a rare example of not only parsing a puzzle input with Possum, but actually solving a full Advent of Code puzzle, using super advanced features like pattern matching and adding together numbers.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Introducing Possum, a Tiny Text Parsing Language</title>
+        <published>2024-06-03T00:00:00+00:00</published>
+        <updated>2024-06-03T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://mulias.github.io/blog/possum-intro/"/>
+        <id>https://mulias.github.io/blog/possum-intro/</id>
+        
+        <content type="html" xml:base="https://mulias.github.io/blog/possum-intro/">&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mulias&#x2F;possum_parser_language&quot;&gt;Possum&lt;&#x2F;a&gt; is a domain-specific language designed for parsing text, inspired by classic Unix utilities like &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;AWK&quot;&gt;AWK&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Sed&quot;&gt;sed&lt;&#x2F;a&gt;. You can use Possum for tasks ranging from single-line scripts for data extraction to quickly prototyping a new programming language syntax. The language aims to make parsing friendly and fun, and uses a minimal feature set to write declarative programs that are both compact and readable.&lt;&#x2F;p&gt;
+&lt;p&gt;This guide teaches the core features of Possum using interactive examples, and should give you enough context to handle a wide range of parsing situations. If you&#x27;re checking out Possum for the first time and want to learn more about the language at a higher level, I&#x27;m planning on writing separate articles covering the design philosophy behind Possum and examples of larger Possum programs.&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;warning-work-in-progress-warning&quot;&gt;⚠️ Work In Progress ⚠️&lt;&#x2F;h4&gt;
+&lt;p&gt;Possum is still in development. Most of the core functionality is in place, but there are a number of rough edges. The one you&#x27;ll likely notice is that error messages are mostly placeholders, and will be pretty unhelpful. Rest assured we&#x27;ve got a team of marsupials working around the clock to correct this issue.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-basics&quot;&gt;The Basics&lt;&#x2F;h2&gt;
+&lt;p&gt;A Possum program consists of parsers, functions that both validate text inputs and transform them into structured data. The Possum runtime takes a program and an input string and either successfully parses the input into a JSON encoded value, or fails if the input was malformed.&lt;&#x2F;p&gt;
+&lt;p&gt;This section covers parsers that match specific strings or numbers in the input text and return the matched value unchanged. Later on we&#x27;ll introduce ways to compose these basic parsers together to make compound parsers that can validate more complex inputs and produce any JSON value as output.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;literal-parsers&quot;&gt;Literal Parsers&lt;&#x2F;h3&gt;
+&lt;p&gt;String literals are parsers which match the exact text of the string and return the string value on success.&lt;&#x2F;p&gt;
+&lt;p&gt;Here&#x27;s our first interactive example! Typically Possum is run from the command line, but in the browser the &lt;code&gt;Input&lt;&#x2F;code&gt; field is the text we&#x27;re going to parse, while the &lt;code&gt;Parser&lt;&#x2F;code&gt; field is the Possum program. Try running the program once to see it succeed, and then change either the input or parser to experiment with the string matching behavior.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;Hello World!&quot;
+        data-reset=&quot;Hello World!&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;Hello World!&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;Hello World!&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;String literals can use double or single quotes. JSON strings are encoded with double quotes, so the output will always use double quotes.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;Time to &amp;quot;parse some text&amp;quot;&quot;
+        data-reset=&quot;Time to &amp;quot;parse some text&amp;quot;&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;#x27;Time to &amp;quot;parse some text&amp;quot;&amp;#x27;&quot;
+        data-reset=&quot;&amp;#x27;Time to &amp;quot;parse some text&amp;quot;&amp;#x27;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Number literals are parsers which match the exact digits of a number and return the number value on success. Possum supports the same number format as JSON, which includes positive and negative numbers, integers, and numbers with fraction and&#x2F;or exponent parts.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;1245&quot;
+        data-reset=&quot;1245&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;12&quot;
+        data-reset=&quot;12&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;-37&quot;
+        data-reset=&quot;-37&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;-37&quot;
+        data-reset=&quot;-37&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;10.45&quot;
+        data-reset=&quot;10.45&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;10.45&quot;
+        data-reset=&quot;10.45&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;6.022e23&quot;
+        data-reset=&quot;6.022e23&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;6.022e23&quot;
+        data-reset=&quot;6.022e23&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;range-parsers&quot;&gt;Range Parsers&lt;&#x2F;h3&gt;
+&lt;p&gt;Character ranges are parsers that match a single Unicode code point that falls within an inclusive range.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;g&quot;
+        data-reset=&quot;g&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;a&amp;quot;..&amp;quot;z&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;a&amp;quot;..&amp;quot;z&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Code points are, broadly speaking, how Unicode defines units of text. This means we can use character range parsers for more than just ASCII characters. The emoji &amp;quot;😄&amp;quot; is code point &lt;code&gt;U+1F604&lt;&#x2F;code&gt; and &amp;quot;🤠&amp;quot; is &lt;code&gt;U+1F920&lt;&#x2F;code&gt;, so &amp;quot;😅&amp;quot; (&lt;code&gt;U+1F605&lt;&#x2F;code&gt;) is in the range. It&#x27;s worth noting that some units of text are made up of multiple code points stuck together, so character ranges won&#x27;t work for absolutely everything that looks like a single character. This limitation shouldn&#x27;t be an issue in the majority of parsing use cases.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;😅&quot;
+        data-reset=&quot;😅&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;😄&amp;quot;..&amp;quot;🤠&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;😄&amp;quot;..&amp;quot;🤠&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Integer ranges use the same &lt;code&gt;..&lt;&#x2F;code&gt; syntax, but match all integers that fall within an inclusive range.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;78&quot;
+        data-reset=&quot;78&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;1..9&quot;
+        data-reset=&quot;1..9&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;78&quot;
+        data-reset=&quot;78&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;70..80&quot;
+        data-reset=&quot;70..80&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;greed-and-failure&quot;&gt;Greed and Failure&lt;&#x2F;h3&gt;
+&lt;p&gt;Parsers always start matching from the beginning of the input, do not skip over any input, and return the longest possible match.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;match this: but not this&quot;
+        data-reset=&quot;match this: but not this&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;match this: &amp;quot;&quot;
+        data-reset=&quot;&amp;quot;match this: &amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;After parsing, any extra input is thrown out. This means that the empty string &lt;code&gt;&amp;quot;&amp;quot;&lt;&#x2F;code&gt; is a parser that always succeeds, no matter the input.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;Call me Ishmael. Some years ago — never mind how long precisely — having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.&quot;
+        data-reset=&quot;Call me Ishmael. Some years ago — never mind how long precisely — having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;If the parser fails to find a match, Possum returns an error.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;not my parser&quot;
+        data-reset=&quot;not my parser&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;my parser&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;my parser&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h2 id=&quot;the-standard-library&quot;&gt;The Standard Library&lt;&#x2F;h2&gt;
+&lt;p&gt;Possum has a standard library with parsers covering many common parsing situations. Here&#x27;s a quick overview of some standard library parsers we&#x27;ll be using in our examples.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;parsing-strings&quot;&gt;Parsing Strings&lt;&#x2F;h3&gt;
+&lt;p&gt;Use &lt;code&gt;char&lt;&#x2F;code&gt; to parse exactly one character, returning the value as a string.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;123&quot;
+        data-reset=&quot;123&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;char&quot;
+        data-reset=&quot;char&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Parse and return an upper- or lower-case letter from the English alphabet with &lt;code&gt;alpha&lt;&#x2F;code&gt;. To parse multiple letters try changing &lt;code&gt;alpha&lt;&#x2F;code&gt; to &lt;code&gt;alphas&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;Foo123! bar&quot;
+        data-reset=&quot;Foo123! bar&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;alpha&quot;
+        data-reset=&quot;alpha&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Parse and return one or more alphanumeric characters with &lt;code&gt;word&lt;&#x2F;code&gt;. This parser also accepts &lt;code&gt;_&lt;&#x2F;code&gt; and &lt;code&gt;-&lt;&#x2F;code&gt;.
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;Foo123! bar&quot;
+        data-reset=&quot;Foo123! bar&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;word&quot;
+        data-reset=&quot;word&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;&#x2F;p&gt;
+&lt;p&gt;Parse and return one or more non-whitespace characters with &lt;code&gt;token&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;Foo123! bar&quot;
+        data-reset=&quot;Foo123! bar&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;token&quot;
+        data-reset=&quot;token&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Some parsers are parametrized by other parsers. The parser &lt;code&gt;many(p)&lt;&#x2F;code&gt; tries to run the parser &lt;code&gt;p&lt;&#x2F;code&gt; repeatedly until it no longer succeeds, and returns the concatenation of all of the parsed values.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;abcdefg&quot;
+        data-reset=&quot;abcdefg&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;many(&amp;quot;a&amp;quot;..&amp;quot;d&amp;quot;)&quot;
+        data-reset=&quot;many(&amp;quot;a&amp;quot;..&amp;quot;d&amp;quot;)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;parsing-whitespace&quot;&gt;Parsing Whitespace&lt;&#x2F;h3&gt;
+&lt;p&gt;The &lt;code&gt;space&lt;&#x2F;code&gt; parser matches a single blank non-line-breaking character. This usually means an ASCII space or tab. By convention &lt;code&gt;spaces&lt;&#x2F;code&gt; will instead parse multiple blank characters at once.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;        text&quot;
+        data-reset=&quot;        text&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;space&quot;
+        data-reset=&quot;space&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The &lt;code&gt;newline&lt;&#x2F;code&gt; parser matches and returns a single line-breaking character. To parse multiple line breaks use &lt;code&gt;newlines&lt;&#x2F;code&gt;. These parsers are aliased to the abbreviations &lt;code&gt;nl&lt;&#x2F;code&gt; and &lt;code&gt;nls&lt;&#x2F;code&gt;, respectively.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;
+
+
+  |end of whitespace&quot;
+    &gt;
+
+
+  |end of whitespace&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;newline&quot;
+    &gt;newline&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;To parse all contiguous whitespace use &lt;code&gt;whitespace&lt;&#x2F;code&gt; or &lt;code&gt;ws&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;
+
+
+  |end of whitespace&quot;
+    &gt;
+
+
+  |end of whitespace&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;whitespace&quot;
+    &gt;whitespace&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;parsing-numbers&quot;&gt;Parsing Numbers&lt;&#x2F;h3&gt;
+&lt;p&gt;The &lt;code&gt;digit&lt;&#x2F;code&gt; parser matches a single Arabic numeral between &lt;code&gt;0&lt;&#x2F;code&gt; and &lt;code&gt;9&lt;&#x2F;code&gt;, and returns the numeral as an integer.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;31987abc&quot;
+        data-reset=&quot;31987abc&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;digit&quot;
+        data-reset=&quot;digit&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Parse any valid JSON integer with &lt;code&gt;integer&lt;&#x2F;code&gt;, or the alias &lt;code&gt;int&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;31987abc&quot;
+        data-reset=&quot;31987abc&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;integer&quot;
+        data-reset=&quot;integer&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Parse any valid JSON number with &lt;code&gt;number&lt;&#x2F;code&gt; or &lt;code&gt;num&lt;&#x2F;code&gt;. This includes numbers with fraction and&#x2F;or exponent parts.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;12.45e-10xyz&quot;
+        data-reset=&quot;12.45e-10xyz&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;number&quot;
+        data-reset=&quot;number&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;parsing-constants&quot;&gt;Parsing Constants&lt;&#x2F;h3&gt;
+&lt;p&gt;The parsers &lt;code&gt;true(t)&lt;&#x2F;code&gt;, &lt;code&gt;false(f)&lt;&#x2F;code&gt;, &lt;code&gt;bool(t, f)&lt;&#x2F;code&gt;, and &lt;code&gt;null(n)&lt;&#x2F;code&gt; return the appropriate constant values when the provided parser matches.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;True&quot;
+        data-reset=&quot;True&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;true(&amp;quot;True&amp;quot;)&quot;
+        data-reset=&quot;true(&amp;quot;True&amp;quot;)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;No&quot;
+        data-reset=&quot;No&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;false(&amp;quot;No&amp;quot;)&quot;
+        data-reset=&quot;false(&amp;quot;No&amp;quot;)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;0&quot;
+        data-reset=&quot;0&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;bool(1, 0)&quot;
+        data-reset=&quot;bool(1, 0)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;123&quot;
+        data-reset=&quot;123&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;null(number)&quot;
+        data-reset=&quot;null(number)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;parsing-collections&quot;&gt;Parsing Collections&lt;&#x2F;h3&gt;
+&lt;p&gt;Finally, &lt;code&gt;array(elem)&lt;&#x2F;code&gt; and &lt;code&gt;object(key, value)&lt;&#x2F;code&gt; return ordered list collections (arrays) and key&#x2F;value pair collections (objects).&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;1010111001&quot;
+        data-reset=&quot;1010111001&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;array(digit)&quot;
+        data-reset=&quot;array(digit)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;a12b34c56&quot;
+        data-reset=&quot;a12b34c56&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;object(alpha, int)&quot;
+        data-reset=&quot;object(alpha, int)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Collections often have separator characters between elements. You can use &lt;code&gt;array_sep(elem, sep)&lt;&#x2F;code&gt; and &lt;code&gt;object_sep(key, pair_sep, value, sep)&lt;&#x2F;code&gt; to handle these cases, parsing the separators but excluding them from the result.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;1 2 3 4 5 6&quot;
+        data-reset=&quot;1 2 3 4 5 6&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;array_sep(int, &amp;#x27; &amp;#x27;)&quot;
+        data-reset=&quot;array_sep(int, &amp;#x27; &amp;#x27;)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;foo=33;bar=1&quot;
+    &gt;foo=33;bar=1&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;object_sep(alphas, &amp;quot;=&amp;quot;, int, &amp;quot;;&amp;quot;)&quot;
+    &gt;object_sep(alphas, &amp;quot;=&amp;quot;, int, &amp;quot;;&amp;quot;)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h2 id=&quot;composing-parsers&quot;&gt;Composing Parsers&lt;&#x2F;h2&gt;
+&lt;p&gt;We&#x27;ve now covered both basic parsers for strings and numbers, and some of the high-level parser functions from Possum&#x27;s standard library.&lt;&#x2F;p&gt;
+&lt;p&gt;The last major feature we need is the ability to combine parsers to handle more complex inputs. In Possum we do this with &lt;em&gt;infix operators&lt;&#x2F;em&gt;, symbols that go between two parsers to control how and when the parsers run.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;or&quot;&gt;Or&lt;&#x2F;h3&gt;
+&lt;p&gt;The &amp;quot;or&amp;quot; operator &lt;code&gt;p1 | p2&lt;&#x2F;code&gt; tries to match the parser &lt;code&gt;p1&lt;&#x2F;code&gt; and then if that fails tries to match &lt;code&gt;p2&lt;&#x2F;code&gt; instead.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;two&quot;
+        data-reset=&quot;two&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;one&amp;quot; | &amp;quot;two&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;one&amp;quot; | &amp;quot;two&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;If both parsers fail then the compound parser fails.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;three&quot;
+        data-reset=&quot;three&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;one&amp;quot; | &amp;quot;two&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;one&amp;quot; | &amp;quot;two&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;take-right&quot;&gt;Take Right&lt;&#x2F;h3&gt;
+&lt;p&gt;The &amp;quot;take right&amp;quot; operator &lt;code&gt;p1 &amp;gt; p2&lt;&#x2F;code&gt; matches &lt;code&gt;p1&lt;&#x2F;code&gt; and then matches and returns &lt;code&gt;p2&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;one two&quot;
+        data-reset=&quot;one two&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;one&amp;quot; &amp;gt; &amp;quot; &amp;quot; &amp;gt; &amp;quot;two&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;one&amp;quot; &amp;gt; &amp;quot; &amp;quot; &amp;gt; &amp;quot;two&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;If either parser fails then the compound parser fails.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;one two&quot;
+        data-reset=&quot;one two&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;three&amp;quot; &amp;gt; &amp;quot; two&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;three&amp;quot; &amp;gt; &amp;quot; two&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;take-left&quot;&gt;Take Left&lt;&#x2F;h3&gt;
+&lt;p&gt;Similarly the &amp;quot;take left&amp;quot; operator &lt;code&gt;p1 &amp;lt; p2&lt;&#x2F;code&gt; matches &lt;code&gt;p1&lt;&#x2F;code&gt;, keeps the result, then matches &lt;code&gt;p2&lt;&#x2F;code&gt;. If both succeed then the value parsed by &lt;code&gt;p1&lt;&#x2F;code&gt; is returned.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;one two&quot;
+        data-reset=&quot;one two&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;one&amp;quot; &amp;lt; &amp;quot; &amp;quot; &amp;lt; &amp;quot;two&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;one&amp;quot; &amp;lt; &amp;quot; &amp;quot; &amp;lt; &amp;quot;two&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;(5)&quot;
+        data-reset=&quot;(5)&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;(&amp;quot; &amp;gt; int &amp;lt; &amp;quot;)&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;(&amp;quot; &amp;gt; int &amp;lt; &amp;quot;)&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;If either parser fails then the compound parser fails.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;one three&quot;
+        data-reset=&quot;one three&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;one&amp;quot; &amp;lt; &amp;quot; &amp;quot; &amp;lt; &amp;quot;two&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;one&amp;quot; &amp;lt; &amp;quot; &amp;quot; &amp;lt; &amp;quot;two&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;merge&quot;&gt;Merge&lt;&#x2F;h3&gt;
+&lt;p&gt;The &amp;quot;merge&amp;quot; operator &lt;code&gt;p1 + p2&lt;&#x2F;code&gt; matches &lt;code&gt;p1&lt;&#x2F;code&gt; and then &lt;code&gt;p2&lt;&#x2F;code&gt; and combines the two values.&lt;&#x2F;p&gt;
+&lt;p&gt;Merging will concatenate strings:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;foo   bar&quot;
+        data-reset=&quot;foo   bar&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;word + ws + word&quot;
+        data-reset=&quot;word + ws + word&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Concatenate arrays:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;98765hefty&quot;
+        data-reset=&quot;98765hefty&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;array(digit) + array(alpha)&quot;
+        data-reset=&quot;array(digit) + array(alpha)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Combine objects, overwriting existing values:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;a0b0c0c1a1d1&quot;
+        data-reset=&quot;a0b0c0c1a1d1&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;object(char, 0) + object(char, 1)&quot;
+        data-reset=&quot;object(char, 0) + object(char, 1)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Sum numbers:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;123321&quot;
+        data-reset=&quot;123321&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;123 + 321&quot;
+        data-reset=&quot;123 + 321&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;And apply logical &amp;quot;or&amp;quot; to booleans:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;10&quot;
+        data-reset=&quot;10&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;bool(1, 0) + bool(1, 0)&quot;
+        data-reset=&quot;bool(1, 0) + bool(1, 0)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;If the two parsed values have different types then the operation will throw a runtime error.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;a1&quot;
+        data-reset=&quot;a1&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;alpha + digit&quot;
+        data-reset=&quot;alpha + digit&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The one exception to this rule is the value &lt;code&gt;null&lt;&#x2F;code&gt;, which can be merged with any other value, acting as the identity value for that data type:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;N123&quot;
+        data-reset=&quot;N123&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;null(&amp;quot;N&amp;quot;) + int&quot;
+        data-reset=&quot;null(&amp;quot;N&amp;quot;) + int&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;return&quot;&gt;Return&lt;&#x2F;h3&gt;
+&lt;p&gt;The &amp;quot;return&amp;quot; operator &lt;code&gt;p $ V&lt;&#x2F;code&gt; matches &lt;code&gt;p&lt;&#x2F;code&gt;, and then on success returns the value &lt;code&gt;V&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;12345&quot;
+        data-reset=&quot;12345&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;12345 $ &amp;quot;Password Accepted&amp;quot;&quot;
+        data-reset=&quot;12345 $ &amp;quot;Password Accepted&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;too true&quot;
+        data-reset=&quot;too true&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;too true&amp;quot; $ true&quot;
+        data-reset=&quot;&amp;quot;too true&amp;quot; $ true&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The value on the right-side of &lt;code&gt;$&lt;&#x2F;code&gt; can be any valid JSON data, including arrays, objects, true, false, and null.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;123&quot;
+        data-reset=&quot;123&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;1 &amp;gt; 2 &amp;gt; 3 $ [1, 2, 3]&quot;
+        data-reset=&quot;1 &amp;gt; 2 &amp;gt; 3 $ [1, 2, 3]&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;7&quot;
+        data-reset=&quot;7&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;7 $ {&amp;quot;isSeven&amp;quot;: true}&quot;
+        data-reset=&quot;7 $ {&amp;quot;isSeven&amp;quot;: true}&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;nil&quot;
+        data-reset=&quot;nil&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;nil&amp;quot; $ null&quot;
+        data-reset=&quot;&amp;quot;nil&amp;quot; $ null&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;destructure&quot;&gt;Destructure&lt;&#x2F;h3&gt;
+&lt;p&gt;The &amp;quot;destructure&amp;quot; operator &lt;code&gt;p -&amp;gt; P&lt;&#x2F;code&gt; matches &lt;code&gt;p&lt;&#x2F;code&gt;, and then compares the result to the pattern &lt;code&gt;P&lt;&#x2F;code&gt;. If the parsed value has the same structure as the pattern then the parser matches and the whole value is returned. The pattern can be any value, including arrays and objects.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;5&quot;
+        data-reset=&quot;5&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;int -&amp;gt; 5&quot;
+        data-reset=&quot;int -&amp;gt; 5&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;153&quot;
+        data-reset=&quot;153&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;array(digit) -&amp;gt; [1, 5, 3]&quot;
+        data-reset=&quot;array(digit) -&amp;gt; [1, 5, 3]&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;If the parsed value does not match the pattern then the parser fails.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;55&quot;
+        data-reset=&quot;55&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;int -&amp;gt; 5&quot;
+        data-reset=&quot;int -&amp;gt; 5&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Patterns can also include &lt;code&gt;UpperCamelCase&lt;&#x2F;code&gt; variables which match and capture any value. Variables can be used later in the same parser.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;9&quot;
+        data-reset=&quot;9&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;number -&amp;gt; N $ [N, N, N]&quot;
+        data-reset=&quot;number -&amp;gt; N $ [N, N, N]&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;153&quot;
+        data-reset=&quot;153&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;array(digit) -&amp;gt; [1,N,3] $ N&quot;
+        data-reset=&quot;array(digit) -&amp;gt; [1,N,3] $ N&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;sequence&quot;&gt;Sequence&lt;&#x2F;h3&gt;
+&lt;p&gt;The &amp;quot;sequence&amp;quot; operator &lt;code&gt;p1 &amp;amp; p2&lt;&#x2F;code&gt; matches &lt;code&gt;p1&lt;&#x2F;code&gt; and then matches and returns &lt;code&gt;p2&lt;&#x2F;code&gt;. This behavior is similar to &lt;code&gt;&amp;gt;&lt;&#x2F;code&gt;, but &lt;code&gt;&amp;amp;&lt;&#x2F;code&gt; has a more general precedence, grouping parts of a parser together in a similar way to parentheses. Because of this &lt;code&gt;&amp;gt;&lt;&#x2F;code&gt; is best suited for parsing and then ignoring a value within a parsing step, while &lt;code&gt;&amp;amp;&lt;&#x2F;code&gt; is more useful in stringing together a list of steps. Instead of grouping like this:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;1 foo 3&quot;
+    &gt;1 foo 3&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;int &amp;gt; ws &amp;gt; (int | &amp;quot;foo&amp;quot;) &amp;gt; ws &amp;gt; (int | &amp;quot;bar&amp;quot;)&quot;
+    &gt;int &amp;gt; ws &amp;gt; (int | &amp;quot;foo&amp;quot;) &amp;gt; ws &amp;gt; (int | &amp;quot;bar&amp;quot;)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;The same parser can be written more clearly as a sequence:&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;1 foo 3&quot;
+    &gt;1 foo 3&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;int &amp;amp; ws &amp;amp; int | &amp;quot;foo&amp;quot; &amp;amp; ws &amp;amp; int | &amp;quot;bar&amp;quot;&quot;
+    &gt;int &amp;amp; ws &amp;amp; int | &amp;quot;foo&amp;quot; &amp;amp; ws &amp;amp; int | &amp;quot;bar&amp;quot;&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h3 id=&quot;putting-it-all-together&quot;&gt;Putting it all together&lt;&#x2F;h3&gt;
+&lt;p&gt;Using the return, destructure, and sequence operators together we can implement a very common pattern in Possum — matching a sequence of parsers, destructuring to assign values to variables, and then building a return value using the variables.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;12 + 99&quot;
+    &gt;12 + 99&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;6&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;int   -&amp;gt; Left  &amp;amp; ws &amp;amp;
+token -&amp;gt; Op    &amp;amp; ws &amp;amp;
+int   -&amp;gt; Right $
+{&amp;quot;left&amp;quot;: Left, &amp;quot;op&amp;quot;: Op, &amp;quot;right&amp;quot;: Right}&quot;
+    &gt;int   -&amp;gt; Left  &amp;amp; ws &amp;amp;
+token -&amp;gt; Op    &amp;amp; ws &amp;amp;
+int   -&amp;gt; Right $
+{&amp;quot;left&amp;quot;: Left, &amp;quot;op&amp;quot;: Op, &amp;quot;right&amp;quot;: Right}&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h2 id=&quot;defining-parsers&quot;&gt;Defining Parsers&lt;&#x2F;h2&gt;
+&lt;p&gt;A Possum program must have one &lt;em&gt;main parser&lt;&#x2F;em&gt;, and can optionally declare any number of &lt;em&gt;named parsers&lt;&#x2F;em&gt;. Parsers must be separated either by newlines or semicolons. Named parsers are declared with the syntax &lt;code&gt;name = parser&lt;&#x2F;code&gt;. At runtime Possum executes the main parser, which can reference named parsers declared in the program in the same way we reference named parsers from the standard library.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;first=88 second=0 third=-10&quot;
+    &gt;first=88 second=0 third=-10&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;5&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;field = alphas &amp;gt; &amp;quot;=&amp;quot; &amp;gt; int
+
+array_sep(field, ws)&quot;
+    &gt;field = alphas &amp;gt; &amp;quot;=&amp;quot; &amp;gt; int
+
+array_sep(field, ws)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Named Parsers can be parameterized with both parsers and values. Parser params are always &lt;code&gt;snake_case&lt;&#x2F;code&gt; while value params are always &lt;code&gt;UpperCamelCase&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;12345&quot;
+    &gt;12345&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;5&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;if(condition, Then) = condition $ Then
+
+if(12345, [&amp;quot;return&amp;quot;, &amp;quot;this&amp;quot;, &amp;quot;array&amp;quot;])&quot;
+    &gt;if(condition, Then) = condition $ Then
+
+if(12345, [&amp;quot;return&amp;quot;, &amp;quot;this&amp;quot;, &amp;quot;array&amp;quot;])&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;When passing values as parser arguments, any value that could be confused with a parser must be prefixed with &lt;code&gt;$&lt;&#x2F;code&gt;. This includes strings, numbers, and the constants &lt;code&gt;true&lt;&#x2F;code&gt;, &lt;code&gt;false&lt;&#x2F;code&gt;, and &lt;code&gt;null&lt;&#x2F;code&gt;. Arrays, objects, and &lt;code&gt;UpperCamelCase&lt;&#x2F;code&gt; variables are always values, so there&#x27;s no need to disambiguate.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;12345&quot;
+    &gt;12345&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;5&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;if(condition, Then) = condition $ Then
+
+if(12345, $&amp;quot;return this string&amp;quot;)&quot;
+    &gt;if(condition, Then) = condition $ Then
+
+if(12345, $&amp;quot;return this string&amp;quot;)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Named parsers can be recursive and referenced before they are declared. The main parser can come before, after, or in between named parser declarations.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;{{1;{5;7}};{12;3}}&quot;
+    &gt;{{1;{5;7}};{12;3}}&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;10&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;int_or_tuple
+
+int_or_tuple = int | tuple
+
+tuple = &amp;quot;{&amp;quot; &amp;amp;
+  int_or_tuple -&amp;gt; A &amp;amp; &amp;quot;;&amp;quot; &amp;amp;
+  int_or_tuple -&amp;gt; B &amp;amp; &amp;quot;}&amp;quot; $
+  [A, B]&quot;
+    &gt;int_or_tuple
+
+int_or_tuple = int | tuple
+
+tuple = &amp;quot;{&amp;quot; &amp;amp;
+  int_or_tuple -&amp;gt; A &amp;amp; &amp;quot;;&amp;quot; &amp;amp;
+  int_or_tuple -&amp;gt; B &amp;amp; &amp;quot;}&amp;quot; $
+  [A, B]&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h2 id=&quot;a-few-more-standard-library-parsers&quot;&gt;A Few More Standard Library Parsers&lt;&#x2F;h2&gt;
+&lt;p&gt;At this point you should be well equipped to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mulias&#x2F;possum_parser_language&#x2F;blob&#x2F;main&#x2F;docs&#x2F;stdlib.md&quot;&gt;browse the standard library&lt;&#x2F;a&gt;, but here are a few more parsers that you might find particularly useful.&lt;&#x2F;p&gt;
+&lt;p&gt;The parser &lt;code&gt;maybe(p)&lt;&#x2F;code&gt; runs &lt;code&gt;p&lt;&#x2F;code&gt; and either returns the parsed value if &lt;code&gt;p&lt;&#x2F;code&gt; succeeds, or returns &lt;code&gt;null&lt;&#x2F;code&gt; if &lt;code&gt;p&lt;&#x2F;code&gt; fails. This means &lt;code&gt;maybe(p)&lt;&#x2F;code&gt; will never fail, and can be merged with any other value in a concatenated output.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;foobaz&quot;
+        data-reset=&quot;foobaz&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;foo&amp;quot; + maybe(&amp;quot;bar&amp;quot;) + &amp;quot;baz&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;foo&amp;quot; + maybe(&amp;quot;bar&amp;quot;) + &amp;quot;baz&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Similarly, &lt;code&gt;skip(p)&lt;&#x2F;code&gt; runs &lt;code&gt;p&lt;&#x2F;code&gt;, but on success always returns &lt;code&gt;null&lt;&#x2F;code&gt;. Since &lt;code&gt;null&lt;&#x2F;code&gt; can merge with any value this allows parts of the input to be ignored in a concatenated output.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;foobarbaz&quot;
+        data-reset=&quot;foobarbaz&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;foo&amp;quot; + skip(&amp;quot;bar&amp;quot;) + &amp;quot;baz&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;foo&amp;quot; + skip(&amp;quot;bar&amp;quot;) + &amp;quot;baz&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Once you&#x27;re happy with a parser, you may want to ensure that it always parses the whole input by using &lt;code&gt;end_of_input&lt;&#x2F;code&gt; or &lt;code&gt;end&lt;&#x2F;code&gt; to specify that the end of the input has been reached.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;123&quot;
+        data-reset=&quot;123&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;int &amp;lt; end&quot;
+        data-reset=&quot;int &amp;lt; end&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;If &lt;code&gt;end&lt;&#x2F;code&gt; finds unparsed input then it fails.
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;12three&quot;
+        data-reset=&quot;12three&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;int &amp;lt; end&quot;
+        data-reset=&quot;int &amp;lt; end&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;&#x2F;p&gt;
+&lt;p&gt;Alternatively, &lt;code&gt;input(p)&lt;&#x2F;code&gt; wraps a parser to both strip surrounding whitespace and make sure the whole input is parsed.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;   123     &quot;
+        data-reset=&quot;   123     &quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;input(int)&quot;
+        data-reset=&quot;input(int)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Use &lt;code&gt;find(p)&lt;&#x2F;code&gt; to skip characters until the provided parser matches.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;___test___83324____99&quot;
+        data-reset=&quot;___test___83324____99&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;find(number)&quot;
+        data-reset=&quot;find(number)&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;While &lt;code&gt;array_sep(elem, sep)&lt;&#x2F;code&gt; handles one-dimensional data with separators, &lt;code&gt;table_sep(array, sep, row_sep)&lt;&#x2F;code&gt; handles two-dimensional data with both column and row separators.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example large&quot;&gt;
+  &lt;label class=&quot;input&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumInput&quot;
+      class=&quot;input&quot;
+      rows=&quot;3&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;1 2 3 4 5
+0 1 2 3 4
+4 5 6 1 2&quot;
+    &gt;1 2 3 4 5
+0 1 2 3 4
+4 5 6 1 2&lt;&#x2F;textarea&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;parser&quot;&gt;
+    &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+    &lt;textarea
+      name=&quot;possumParser&quot;
+      class=&quot;parser&quot;
+      rows=&quot;1&quot;
+      spellcheck=&quot;false&quot;
+      autocapitalize=&quot;none&quot;
+      autocomplete=&quot;off&quot;
+      data-reset=&quot;table_sep(num, spaces, nl)&quot;
+    &gt;table_sep(num, spaces, nl)&lt;&#x2F;textarea&gt;
+    &lt;input type=&quot;submit&quot; class=&quot;large&quot; value=&quot;Run!&quot;&#x2F;&gt;
+  &lt;&#x2F;label&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;~~~(##)&#x27;&amp;gt; Conclusion&lt;&#x2F;h2&gt;
+&lt;p&gt;We&#x27;ve made it — that&#x27;s just about everything you need to know to be productive with Possum. In the very first example we matched and returned a string input exactly, but with just a few changes we can extend that parser to handle any number of variations or requirements.&lt;&#x2F;p&gt;
+&lt;form action=&quot;&quot; class=&quot;possum-example small&quot;&gt;
+  &lt;div class=&quot;inputs-row&quot;&gt;
+    &lt;label class=&quot;input&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Input&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumInput&quot;
+        class=&quot;input&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;Hello Possum!&quot;
+        data-reset=&quot;Hello Possum!&quot;
+      &#x2F;&gt;
+    &lt;&#x2F;label&gt;
+
+    &lt;label class=&quot;parser&quot;&gt;
+      &lt;span class=&quot;label-text&quot;&gt;Parser&lt;&#x2F;span&gt;
+      &lt;input
+        type=&quot;text&quot;
+        name=&quot;possumParser&quot;
+        class=&quot;parser&quot;
+        spellcheck=&quot;false&quot;
+        autocapitalize=&quot;none&quot;
+        autocomplete=&quot;off&quot;
+        value=&quot;&amp;quot;Hello&amp;quot; + ws + word + &amp;quot;!&amp;quot;&quot;
+        data-reset=&quot;&amp;quot;Hello&amp;quot; + ws + word + &amp;quot;!&amp;quot;&quot;
+      &#x2F;&gt;
+      &lt;input type=&quot;submit&quot; value=&quot;Run!&quot;&#x2F;&gt;
+    &lt;&#x2F;label&gt;
+  &lt;&#x2F;div&gt;
+
+  &lt;label class=&quot;output&quot;&gt;&lt;&#x2F;label&gt;
+&lt;&#x2F;form&gt;
+&lt;p&gt;Possum aims to make parsing friendly and fun by letting you compose complex parsers from simple building blocks. These kinds of parsers are frequently called &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Parser_combinator&quot;&gt;parser combinators&lt;&#x2F;a&gt;. Many modern languages have parser combinator libraries, but they&#x27;re all implemented slightly differently from one another. Possum provides a consistent set of parsing utilities that integrate with any programming language through JSON. On top of that, Possum avoids much of the complexity that comes from trying to integrate parser combinators into an existing language by focusing solely on parsing.&lt;&#x2F;p&gt;
+&lt;p&gt;To install Possum check out the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mulias&#x2F;possum_parser_language&#x2F;&quot;&gt;Github repo&lt;&#x2F;a&gt;. To learn more about using Possum read through the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mulias&#x2F;possum_parser_language&#x2F;blob&#x2F;main&#x2F;docs&#x2F;stdlib.md&quot;&gt;standard library&lt;&#x2F;a&gt; or some &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mulias&#x2F;possum_parser_language&#x2F;tree&#x2F;main&#x2F;examples&quot;&gt;larger examples&lt;&#x2F;a&gt;. Good luck and happy parsing!&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Nix flakes have built in templates and they&#x27;re good actually</title>
+        <published>2024-01-09T00:00:00+00:00</published>
+        <updated>2024-01-09T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://mulias.github.io/blog/nix-flakes-templates-good-actually/"/>
+        <id>https://mulias.github.io/blog/nix-flakes-templates-good-actually/</id>
+        
+        <content type="html" xml:base="https://mulias.github.io/blog/nix-flakes-templates-good-actually/">&lt;p&gt;Nix &lt;a href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Flakes&quot;&gt;flakes&lt;&#x2F;a&gt; come with a templating system to quickly initialize dev environments for specific languages or frameworks. I&#x27;ve been using Nix for years and had no idea this was a feature!&lt;&#x2F;p&gt;
+&lt;p&gt;Shout out to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;thomassdk&quot;&gt;Thomas Kelly&lt;&#x2F;a&gt; for walking me through this little exercise and probably saving me hours of configuration time on future projects. Thanks Thomas!&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;setup&quot;&gt;Setup&lt;&#x2F;h2&gt;
+&lt;p&gt;Nix flakes are &amp;quot;experimental&amp;quot; even though they&#x27;ve been around for years and seem pretty popular. You might have to do a little extra config work to get the feature enabled.&lt;&#x2F;p&gt;
+&lt;p&gt;For &lt;code&gt;NixOS&lt;&#x2F;code&gt; this means updating &lt;code&gt;&#x2F;etc&#x2F;nixos&#x2F;configuration.nix&lt;&#x2F;code&gt; to add this line:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;nix&quot; style=&quot;background-color:#f9f9f9;color:#111111;&quot; class=&quot;language-nix &quot;&gt;&lt;code class=&quot;language-nix&quot; data-lang=&quot;nix&quot;&gt;&lt;span style=&quot;color:#f07219;&quot;&gt;nix&lt;&#x2F;span&gt;&lt;span style=&quot;color:#3e999f;&quot;&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07219;&quot;&gt;settings&lt;&#x2F;span&gt;&lt;span style=&quot;color:#3e999f;&quot;&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07219;&quot;&gt;experimental-features &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c82829;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#839c00;&quot;&gt;&amp;quot;nix-command&amp;quot; &amp;quot;flakes&amp;quot; &lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c82829;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;For &lt;code&gt;Nix&lt;&#x2F;code&gt; without the &lt;code&gt;OS&lt;&#x2F;code&gt; part see &lt;a href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Flakes#Enable_flakes_permanently_in_NixOS&quot;&gt;config instructions in the docs&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;finding-templates&quot;&gt;Finding templates&lt;&#x2F;h2&gt;
+&lt;p&gt;List the official templates:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix flake show templates
+&lt;&#x2F;span&gt;&lt;span&gt;github:NixOS&#x2F;templates&#x2F;98bc26d94008617aac7cd0244fb09ff04d6c8cf6
+&lt;&#x2F;span&gt;&lt;span&gt;├───defaultTemplate: template: A very basic flake
+&lt;&#x2F;span&gt;&lt;span&gt;└───templates
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───bash-hello: template: An over-engineered Hello World in bash
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───c-hello: template: An over-engineered Hello World in C
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───compat: template: A default.nix and shell.nix for backward compatibility with Nix installations that don&amp;#39;t support flakes
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───full: template: A template that shows all standard flake outputs
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───go-hello: template: A simple Go package
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───haskell-hello: template: A Hello World in Haskell with one dependency
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───haskell-nix: template: An haskell.nix template using hix
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───hercules-ci: template: An example for Hercules-CI, containing only the necessary attributes for adding to your project.
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───pandoc-xelatex: template: A report built with Pandoc, XeLaTex and a custom font
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───python: template: Python template, using poetry2nix
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust: template: Rust template, using Naersk
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust-web-server: template: A Rust web server including a NixOS module
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───simpleContainer: template: A NixOS container running apache-httpd
+&lt;&#x2F;span&gt;&lt;span&gt;    └───trivial: template: A very basic flake
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I&#x27;m told these are not necessarily the best templates to use, since they have pretty limited scope and tend to be out of date.&lt;&#x2F;p&gt;
+&lt;p&gt;List community maintained templates from a Github repo:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix flake show github:the-nix-way&#x2F;dev-templates
+&lt;&#x2F;span&gt;&lt;span&gt;github:the-nix-way&#x2F;dev-templates&#x2F;0ea67a261e12a8d02d773cdc588baccf8397cc25
+&lt;&#x2F;span&gt;&lt;span&gt;└───templates
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───clojure: template: Clojure development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───csharp: template: C# development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───cue: template: Cue development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───dhall: template: Dhall development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───elixir: template: Elixir development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───elm: template: Elm development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───gleam: template: Gleam development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───go: template: Go (Golang) development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───hashi: template: HashiCorp DevOps tools development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───haskell: template: Haskell development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───java: template: Java development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───kotlin: template: Kotlin development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───latex: template: LaTeX development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───nickel: template: Nickel development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───nim: template: Nim development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───nix: template: Nix development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───node: template: Node.js development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───opa: template: Open Policy Agent development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───php: template: PHP development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───protobuf: template: Protobuf development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───pulumi: template: Pulumi development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───purescript: template: Purescript development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───python: template: Python development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rt: template: Rust development environment with Rust version defined by a rust-toolchain.toml file
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───ruby: template: Ruby development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust: template: Rust development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───rust-toolchain: template: Rust development environment with Rust version defined by a rust-toolchain.toml file
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───scala: template: Scala development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    ├───shell: template: Shell script development environment
+&lt;&#x2F;span&gt;&lt;span&gt;    └───zig: template: Zig development environment
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Thomas rec&#x27;d &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;the-nix-way&#x2F;dev-templates&quot;&gt;The Nix Way&lt;&#x2F;a&gt; as a high quality source of templates!&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;using-a-template&quot;&gt;Using a template&lt;&#x2F;h2&gt;
+&lt;p&gt;Initialize a rust template in the current directory:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix flake init -t github:the-nix-way&#x2F;dev-templates#rust
+&lt;&#x2F;span&gt;&lt;span&gt;wrote: &#x2F;home&#x2F;elias&#x2F;src&#x2F;my-rust-project&#x2F;flake.nix
+&lt;&#x2F;span&gt;&lt;span&gt;wrote: &#x2F;home&#x2F;elias&#x2F;src&#x2F;my-rust-project&#x2F;flake.lock
+&lt;&#x2F;span&gt;&lt;span&gt;wrote: &#x2F;home&#x2F;elias&#x2F;src&#x2F;my-rust-project&#x2F;.envrc
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The generated &lt;code&gt;flake.nix&lt;&#x2F;code&gt; defines a baseline development environment for rust projects, while &lt;code&gt;flake.lock&lt;&#x2F;code&gt; acts as a package lock file to track when versions change. Bonus points for the &lt;code&gt;.envrc&lt;&#x2F;code&gt; file to hook into &lt;a href=&quot;https:&#x2F;&#x2F;direnv.net&#x2F;&quot;&gt;direnv&lt;&#x2F;a&gt; and auto-load the flake when entering the directory!&lt;&#x2F;p&gt;
+&lt;p&gt;Assuming we don&#x27;t have &lt;code&gt;direnv&lt;&#x2F;code&gt;, we can use &lt;code&gt;nix develop&lt;&#x2F;code&gt; to enter a new dev shell based on the flake:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix develop
+&lt;&#x2F;span&gt;&lt;span&gt;[dev shell] $ cargo init
+&lt;&#x2F;span&gt;&lt;span&gt;     Created binary (application) package
+&lt;&#x2F;span&gt;&lt;span&gt;[dev shell] $ cargo run
+&lt;&#x2F;span&gt;&lt;span&gt;Hello, world!
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;flake-integration-with-git-is-kind-of-weird&quot;&gt;Flake integration with Git is kind of weird&lt;&#x2F;h2&gt;
+&lt;p&gt;If you&#x27;re working in a directory that uses Git for version control then your flake files will only work once you &lt;code&gt;git add&lt;&#x2F;code&gt; them to the project. This is mentioned &lt;a href=&quot;https:&#x2F;&#x2F;nixos.wiki&#x2F;wiki&#x2F;Flakes#Git_WARNING&quot;&gt;extremely briefly&lt;&#x2F;a&gt; in the docs. If you aren&#x27;t using Git then flakes will work fine.&lt;&#x2F;p&gt;
+&lt;p&gt;In the rust example above the directory starts out without version control, but gets initialized with a git repo as part of &lt;code&gt;cargo init&lt;&#x2F;code&gt;. This means if you exit the dev shell and then try to re-run &lt;code&gt;nix develop&lt;&#x2F;code&gt; in the newly version controlled repo you&#x27;ll get a cryptic error message:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#f9f9f9;color:#111111;&quot;&gt;&lt;code&gt;&lt;span&gt;$ nix develop
+&lt;&#x2F;span&gt;&lt;span&gt;warning: Git tree is dirty
+&lt;&#x2F;span&gt;&lt;span&gt;error: getting status of &amp;#39;&#x2F;nix&#x2F;store&#x2F;0ccnxa25whszw7mgbgyzdm4nqc0zwnm8-source&#x2F;flake.nix&amp;#39;: No such file or directory
+&lt;&#x2F;span&gt;&lt;span&gt;$ git add flake.nix flake.lock
+&lt;&#x2F;span&gt;&lt;span&gt;$ nix develop
+&lt;&#x2F;span&gt;&lt;span&gt;warning: Git tree is dirty
+&lt;&#x2F;span&gt;&lt;span&gt;[dev shell] $ cargo run
+&lt;&#x2F;span&gt;&lt;span&gt;Hello, world!
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;open-questions-further-reading&quot;&gt;Open questions, further reading&lt;&#x2F;h2&gt;
+&lt;p&gt;For the first time in a good while I&#x27;m actually excited to learn more about how Nix works!&lt;&#x2F;p&gt;
+&lt;p&gt;With regards to flakes I&#x27;m still wondering how I&#x27;ll go about finding a good flake template for less common dev environments. I also anticipate some issues with using flakes on version controlled projects where I can&#x27;t check in the generated files. Not every project is interested in taking on Nix tooling, and in the past I&#x27;ve dealt with that by just not checking in my nix shell config to version control.&lt;&#x2F;p&gt;
+&lt;p&gt;A few resources I&#x27;d like to follow up with to deepen my understanding:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;More details about flakes &lt;a href=&quot;https:&#x2F;&#x2F;jvns.ca&#x2F;blog&#x2F;2023&#x2F;11&#x2F;11&#x2F;notes-on-nix-flakes&#x2F;&quot;&gt;https:&#x2F;&#x2F;jvns.ca&#x2F;blog&#x2F;2023&#x2F;11&#x2F;11&#x2F;notes-on-nix-flakes&#x2F;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;A practical guide to using Nix with a focus on flakes &lt;a href=&quot;https:&#x2F;&#x2F;zero-to-nix.com&#x2F;&quot;&gt;https:&#x2F;&#x2F;zero-to-nix.com&#x2F;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+</feed>

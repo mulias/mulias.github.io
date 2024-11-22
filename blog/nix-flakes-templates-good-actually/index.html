@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <style>
+      :root {
+        --accent-color: #05a081;
+        --accent-color-light: #82d0c0;
+        --accent-overlay-color: #fff;
+        --body-bg: #fff;
+        --body-color: #000;
+        --heading-color: #000;
+        --table-bg-even: #f3f3f3;
+        --table-border-bottom: #dddddd;
+      }
+      
+    </style>
+
+    <meta name="theme-color" content="#05a081" />
+
+    
+      <link rel="icon" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.97fd810ee92b583a.png" />
+      <link rel="apple-touch-icon" sizes="48x48" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.97fd810ee92b583a.png" />
+      <link rel="apple-touch-icon" sizes="72x72" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.9084ada6c836790e.png" />
+      <link rel="apple-touch-icon" sizes="96x96" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.4b181b94a54fe1e9.png" />
+      <link rel="apple-touch-icon" sizes="144x144" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.06a6332c6a5bc128.png" />
+      <link rel="apple-touch-icon" sizes="192x192" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.1d3ed0786777af28.png" />
+      <link rel="apple-touch-icon" sizes="256x256" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.9fa6cac1c1c79f46.png" />
+      <link rel="apple-touch-icon" sizes="384x384" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.f2dbe9ea63f73134.png" />
+      <link rel="apple-touch-icon" sizes="512x512" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.558128aadaf22d02.png" />
+      
+    
+
+    
+
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary">
+
+    
+
+    
+
+    
+      
+        <meta name="description" content="" />
+        <meta name="twitter:description" content="">
+      
+    
+
+    
+      <meta name="twitter:title" content="Nix flakes have built in templates and they&#x27;re good actually">
+    
+
+    <script data-goatcounter="https://mulias.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+    
+      <link rel="prerender" href="&#x2F;" />
+    
+      <link rel="prerender" href="&#x2F;blog&#x2F;" />
+    
+
+    <link rel="prefetch" href="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.0aa8276b5b132c49.png" />
+
+    <title>
+      
+        
+          Nix flakes have built in templates and they&#x27;re good actually
+        
+      
+    </title>
+
+    
+    
+      <link rel="stylesheet" href="https://mulias.github.io/main.css">
+    
+    
+  
+
+  
+
+  
+    <link rel="prerender"  href="https://mulias.github.io/tags/nix/">
+  
+    <link rel="prerender"  href="https://mulias.github.io/tags/nix-flake-templates/">
+  
+    <link rel="prerender"  href="https://mulias.github.io/tags/tooling/">
+  
+    <link rel="prerender"  href="https://mulias.github.io/tags/today-i-learned/">
+  
+
+  
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://google.com/article"
+        },
+        "headline": "Nix flakes have built in templates and they&#x27;re good actually",
+        "image": [],
+        "datePublished": "2024-01-09T00:00:00+00:00",
+        "dateModified": "2024-01-09T00:00:00+00:00",
+        "author": {
+          "@type": "Person",
+          "name": "Elias"
+        },
+         "publisher": {
+          "@type": "Organization",
+          "name": "Elias",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://mulias.github.io/icon.png"
+          }
+          
+        }
+        
+      }
+    </script>
+  
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        
+
+        
+        {
+          
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Elias Mulhall | Home",
+          "item": "https://mulias.github.io/"
+        },
+        
+        {
+          
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Elias Mulhall | Blog",
+          "item": "https://mulias.github.io/blog/"
+        },
+        
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Nix flakes have built in templates and they&#x27;re good actually",
+          "item": "https://mulias.github.io/blog/nix-flakes-templates-good-actually/"
+        }
+      ]
+    }
+  </script>
+
+  </head>
+  <body>
+    
+      <header>
+        <a class="profile-icon" href="/">
+          <img src="https:&#x2F;&#x2F;mulias.github.io&#x2F;processed_images&#x2F;icon.0aa8276b5b132c49.png" alt="profile picture">
+        </a>
+        <nav>
+          
+            <a href="&#x2F;">Home</a>
+          
+            <a href="&#x2F;blog&#x2F;">Blog</a>
+          
+        </nav>
+      </header>
+    
+    <main>
+    
+  <div class="post-title banner">
+    <div class="banner-content">
+      <h1>Nix flakes have built in templates and they&#x27;re good actually</h1>
+    </div>
+  </div>
+
+  <div class="front-matter">
+    <small>
+      
+        January 09, 2024
+      
+      -
+      
+        <span class="tags">
+          
+            <a href="https://mulias.github.io/tags/nix/">nix</a>
+          
+            <a href="https://mulias.github.io/tags/nix-flake-templates/">nix flake templates</a>
+          
+            <a href="https://mulias.github.io/tags/tooling/">tooling</a>
+          
+            <a href="https://mulias.github.io/tags/today-i-learned/">today i learned</a>
+          
+        </span>
+      
+    </small>
+  </div>
+
+  <div>
+    <p>Nix <a href="https://nixos.wiki/wiki/Flakes">flakes</a> come with a templating system to quickly initialize dev environments for specific languages or frameworks. I've been using Nix for years and had no idea this was a feature!</p>
+<p>Shout out to <a href="https://github.com/thomassdk">Thomas Kelly</a> for walking me through this little exercise and probably saving me hours of configuration time on future projects. Thanks Thomas!</p>
+<h2 id="setup">Setup</h2>
+<p>Nix flakes are &quot;experimental&quot; even though they've been around for years and seem pretty popular. You might have to do a little extra config work to get the feature enabled.</p>
+<p>For <code>NixOS</code> this means updating <code>/etc/nixos/configuration.nix</code> to add this line:</p>
+<pre data-lang="nix" style="background-color:#f9f9f9;color:#111111;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#f07219;">nix</span><span style="color:#3e999f;">.</span><span style="color:#f07219;">settings</span><span style="color:#3e999f;">.</span><span style="color:#f07219;">experimental-features </span><span style="font-style:italic;color:#c82829;">= </span><span>[ </span><span style="color:#839c00;">&quot;nix-command&quot; &quot;flakes&quot; </span><span>]</span><span style="font-style:italic;color:#c82829;">;
+</span></code></pre>
+<p>For <code>Nix</code> without the <code>OS</code> part see <a href="https://nixos.wiki/wiki/Flakes#Enable_flakes_permanently_in_NixOS">config instructions in the docs</a>.</p>
+<h2 id="finding-templates">Finding templates</h2>
+<p>List the official templates:</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$ nix flake show templates
+</span><span>github:NixOS/templates/98bc26d94008617aac7cd0244fb09ff04d6c8cf6
+</span><span>├───defaultTemplate: template: A very basic flake
+</span><span>└───templates
+</span><span>    ├───bash-hello: template: An over-engineered Hello World in bash
+</span><span>    ├───c-hello: template: An over-engineered Hello World in C
+</span><span>    ├───compat: template: A default.nix and shell.nix for backward compatibility with Nix installations that don&#39;t support flakes
+</span><span>    ├───full: template: A template that shows all standard flake outputs
+</span><span>    ├───go-hello: template: A simple Go package
+</span><span>    ├───haskell-hello: template: A Hello World in Haskell with one dependency
+</span><span>    ├───haskell-nix: template: An haskell.nix template using hix
+</span><span>    ├───hercules-ci: template: An example for Hercules-CI, containing only the necessary attributes for adding to your project.
+</span><span>    ├───pandoc-xelatex: template: A report built with Pandoc, XeLaTex and a custom font
+</span><span>    ├───python: template: Python template, using poetry2nix
+</span><span>    ├───rust: template: Rust template, using Naersk
+</span><span>    ├───rust-web-server: template: A Rust web server including a NixOS module
+</span><span>    ├───simpleContainer: template: A NixOS container running apache-httpd
+</span><span>    └───trivial: template: A very basic flake
+</span></code></pre>
+<p>I'm told these are not necessarily the best templates to use, since they have pretty limited scope and tend to be out of date.</p>
+<p>List community maintained templates from a Github repo:</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$ nix flake show github:the-nix-way/dev-templates
+</span><span>github:the-nix-way/dev-templates/0ea67a261e12a8d02d773cdc588baccf8397cc25
+</span><span>└───templates
+</span><span>    ├───clojure: template: Clojure development environment
+</span><span>    ├───csharp: template: C# development environment
+</span><span>    ├───cue: template: Cue development environment
+</span><span>    ├───dhall: template: Dhall development environment
+</span><span>    ├───elixir: template: Elixir development environment
+</span><span>    ├───elm: template: Elm development environment
+</span><span>    ├───gleam: template: Gleam development environment
+</span><span>    ├───go: template: Go (Golang) development environment
+</span><span>    ├───hashi: template: HashiCorp DevOps tools development environment
+</span><span>    ├───haskell: template: Haskell development environment
+</span><span>    ├───java: template: Java development environment
+</span><span>    ├───kotlin: template: Kotlin development environment
+</span><span>    ├───latex: template: LaTeX development environment
+</span><span>    ├───nickel: template: Nickel development environment
+</span><span>    ├───nim: template: Nim development environment
+</span><span>    ├───nix: template: Nix development environment
+</span><span>    ├───node: template: Node.js development environment
+</span><span>    ├───opa: template: Open Policy Agent development environment
+</span><span>    ├───php: template: PHP development environment
+</span><span>    ├───protobuf: template: Protobuf development environment
+</span><span>    ├───pulumi: template: Pulumi development environment
+</span><span>    ├───purescript: template: Purescript development environment
+</span><span>    ├───python: template: Python development environment
+</span><span>    ├───rt: template: Rust development environment with Rust version defined by a rust-toolchain.toml file
+</span><span>    ├───ruby: template: Ruby development environment
+</span><span>    ├───rust: template: Rust development environment
+</span><span>    ├───rust-toolchain: template: Rust development environment with Rust version defined by a rust-toolchain.toml file
+</span><span>    ├───scala: template: Scala development environment
+</span><span>    ├───shell: template: Shell script development environment
+</span><span>    └───zig: template: Zig development environment
+</span></code></pre>
+<p>Thomas rec'd <a href="https://github.com/the-nix-way/dev-templates">The Nix Way</a> as a high quality source of templates!</p>
+<h2 id="using-a-template">Using a template</h2>
+<p>Initialize a rust template in the current directory:</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$ nix flake init -t github:the-nix-way/dev-templates#rust
+</span><span>wrote: /home/elias/src/my-rust-project/flake.nix
+</span><span>wrote: /home/elias/src/my-rust-project/flake.lock
+</span><span>wrote: /home/elias/src/my-rust-project/.envrc
+</span></code></pre>
+<p>The generated <code>flake.nix</code> defines a baseline development environment for rust projects, while <code>flake.lock</code> acts as a package lock file to track when versions change. Bonus points for the <code>.envrc</code> file to hook into <a href="https://direnv.net/">direnv</a> and auto-load the flake when entering the directory!</p>
+<p>Assuming we don't have <code>direnv</code>, we can use <code>nix develop</code> to enter a new dev shell based on the flake:</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$ nix develop
+</span><span>[dev shell] $ cargo init
+</span><span>     Created binary (application) package
+</span><span>[dev shell] $ cargo run
+</span><span>Hello, world!
+</span></code></pre>
+<h2 id="flake-integration-with-git-is-kind-of-weird">Flake integration with Git is kind of weird</h2>
+<p>If you're working in a directory that uses Git for version control then your flake files will only work once you <code>git add</code> them to the project. This is mentioned <a href="https://nixos.wiki/wiki/Flakes#Git_WARNING">extremely briefly</a> in the docs. If you aren't using Git then flakes will work fine.</p>
+<p>In the rust example above the directory starts out without version control, but gets initialized with a git repo as part of <code>cargo init</code>. This means if you exit the dev shell and then try to re-run <code>nix develop</code> in the newly version controlled repo you'll get a cryptic error message:</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$ nix develop
+</span><span>warning: Git tree is dirty
+</span><span>error: getting status of &#39;/nix/store/0ccnxa25whszw7mgbgyzdm4nqc0zwnm8-source/flake.nix&#39;: No such file or directory
+</span><span>$ git add flake.nix flake.lock
+</span><span>$ nix develop
+</span><span>warning: Git tree is dirty
+</span><span>[dev shell] $ cargo run
+</span><span>Hello, world!
+</span></code></pre>
+<h2 id="open-questions-further-reading">Open questions, further reading</h2>
+<p>For the first time in a good while I'm actually excited to learn more about how Nix works!</p>
+<p>With regards to flakes I'm still wondering how I'll go about finding a good flake template for less common dev environments. I also anticipate some issues with using flakes on version controlled projects where I can't check in the generated files. Not every project is interested in taking on Nix tooling, and in the past I've dealt with that by just not checking in my nix shell config to version control.</p>
+<p>A few resources I'd like to follow up with to deepen my understanding:</p>
+<ul>
+<li>
+<p>More details about flakes <a href="https://jvns.ca/blog/2023/11/11/notes-on-nix-flakes/">https://jvns.ca/blog/2023/11/11/notes-on-nix-flakes/</a></p>
+</li>
+<li>
+<p>A practical guide to using Nix with a focus on flakes <a href="https://zero-to-nix.com/">https://zero-to-nix.com/</a></p>
+</li>
+</ul>
+
+  </div>
+
+  <hr class="footer-rule" />
+
+  
+    <div class="footer-about">
+      <p>Subscribe via <a href="/atom.xml">RSS</a></p>
+
+    </div>
+  
+
+  <div class="related-container">
+
+    
+
+    
+
+  </div>
+
+  
+
+    </main>
+    <footer class="footer-page">
+    
+      
+    
+    </footer>
+  </body>
+</html>
