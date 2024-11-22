@@ -1,7 +1,7 @@
 +++
 title = "Introducing Possum, a Tiny Text Parsing Language"
 [taxonomies]
-tags = [ "possum", "programming languages", "parsing", "parser combinators", "~~~(##)'>" ]
+tags = [ "possum", "parsing", "programming languages", "~~~(##)'>" ]
 [extra]
 fix_the_dang_highlighting = "~~"
 scripts = [ "possum.js" ]
@@ -11,7 +11,7 @@ scripts = [ "possum.js" ]
 
 This guide teaches the core features of Possum using interactive examples, and should give you enough context to handle a wide range of parsing situations. If you're checking out Possum for the first time and want to learn more about the language at a higher level, I'm planning on writing separate articles covering the design philosophy behind Possum and examples of larger Possum programs.
 
-#### ⚠️  Work In Progress ⚠️
+#### ⚠️ Work In Progress ⚠️
 
 Possum is still in development. Most of the core functionality is in place, but there are a number of rough edges. The one you'll likely notice is that error messages are mostly placeholders, and will be pretty unhelpful. Rest assured we've got a team of marsupials working around the clock to correct this issue.
 
