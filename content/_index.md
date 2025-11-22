@@ -2,16 +2,14 @@
 title = "Elias Mulhall | Home"
 +++
 
-## Hello!
+## > Hello!
 
-I'm Elias, a software developer with an interest in programming languages and developer tooling.
+I'm Elias, a software developer with an interest in programming languages, systems programming, and developer tooling.
 
-## What I'm up to
+## > What's up?
 
-I'm at the [Recurse Center](https://www.recurse.com/), taking some time to work on projects I'm excited about and collaborate with cool folks.
+Right now I'm a staff engineer at Township, a software agency specializing in software for Bluetooth devices and medical interfaces.
 
-Currently my focus is on contributing to the [Roc](https://www.roc-lang.org/) programming language and growing the ecosystem around Roc.
+Previously I participated in the winter 2024 batch at the [Recurse Center](https://www.recurse.com/).
 
-I've also been working on [Possum](https://github.com/mulias/possum_parser_language), a tiny programming language for parsing text into JSON.
-
-As I pick up smaller projects and reach interesting milestones I'll be writing about it [over here](/blog/).
+In my free time I'm currently working on [Possum](https://github.com/mulias/possum_parser_language), a compact programming language for parsing text into JSON.
